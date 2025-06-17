@@ -48,79 +48,25 @@
             color: #2a0845;
             transform: scale(1.08);
         }
-        /* --- SEARCH BOX UNIQUE DEFINITION --- */
         .search-box {
-            background: #2a0845cc;
-            border-radius: 18px;
-            box-shadow: 0 8px 32px #0007, 0 1.5px 0 #fff1;
-            padding: 2.2em 1.2em 1.7em 1.2em;
-            margin: 2em auto 2em auto;
-            max-width: 400px;
-            width: 400px;
-            min-width: 260px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: box-shadow 0.2s;
-        }
-        .search-box input[type="text"], .search-box #suggestions {
-            width: 90%;
-            max-width: 360px;
-            min-width: 160px;
-        }
-        .search-box input[type="text"] {
             background: #3d246c;
+            border-radius: 14px;
+            box-shadow: 0 2px 16px #0005;
+            padding: 2em 1.5em 1.5em 1.5em;
+            margin-bottom: 2em;
+        }
+        input[type="text"] {
+            background: #2a0845;
             color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.15em;
-            padding: 0.9em 1.2em;
-            margin-bottom: 1.2em;
-            box-shadow: 0 1px 8px #7c4dff33;
-            outline: none;
-            transition: box-shadow 0.2s, border 0.2s;
+            border: 1px solid #7c4dff;
+            font-size: 1.1em;
         }
-        .search-box input[type="text"]:focus {
-            box-shadow: 0 2px 16px #b388ff55;
-            border: 1.5px solid #b388ff;
+        input[type="text"]::placeholder {
+            color: #b388ff;
+            opacity: 0.7;
         }
-        .search-box button {
-            width: 100%;
-            max-width: 220px;
-            padding: 0.85em 0;
-            font-size: 1.13em;
-            border-radius: 8px;
-            background: linear-gradient(90deg,#7c4dff 60%,#1976d2 100%);
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            letter-spacing: 1px;
-            box-shadow: 0 2px 12px #7c4dff44;
-            margin-bottom: 1.1em;
-            transition: background 0.2s, transform 0.2s;
-        }
-        .search-box button:hover {
-            background: linear-gradient(90deg,#b388ff 60%,#1976d2 100%);
-            color: #2a0845;
-            transform: scale(1.04);
-        }
-        .search-box #suggestions {
-            margin-top: 0.2em;
-        }
-        @media (max-width: 480px) {
-            .search-box {
-                width: 98vw;
-                max-width: 99vw;
-                min-width: unset;
-                padding: 1.2em 0.2em 1.2em 0.2em;
-            }
-            .search-box input[type="text"], .search-box #suggestions {
-                width: 94vw;
-                max-width: 98vw;
-                min-width: unset;
-            }
+        button {
+            font-family: inherit;
         }
         .suggestions {
             background: #2a0845;
@@ -311,8 +257,8 @@
         <button id="lang-en" class="lang-btn">EN</button>
     </div>
     <div class="search-box" id="search-section">
-        <input type="text" id="search" placeholder="Numéro du Pokémon..." autocomplete="off" />
-        <button id="valider-btn">Valider</button>
+        <input type="text" id="search" placeholder="Numéro du Pokémon..." autocomplete="off">
+        <button id="valider-btn" style="margin-top:10px;width:100%;padding:10px;font-size:1em;border-radius:5px;background:#1976d2;color:#fff;border:none;cursor:pointer;">Valider</button>
         <div id="suggestions" class="suggestions"></div>
     </div>
     <div id="pokemon-detail" style="display:none; max-width:800px; margin:auto; background:#fff; padding:2em; border-radius:10px; box-shadow:0 2px 8px #0001;"></div>

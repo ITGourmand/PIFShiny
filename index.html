@@ -320,7 +320,6 @@
         <div id="footer-credit"></div>
     </footer>
     <script>
-    // Objet de traduction centralisé
 const translations = {
     fr: {
         searchTitle: 'Recherche Pokémon',
@@ -394,7 +393,6 @@ function t(key) {
     let searchSection = document.getElementById('search-section');
     let mainTitle = document.getElementById('main-title');
 
-    // Récupération des données Google Sheets
     fetch('https://docs.google.com/spreadsheets/d/1N-wZs3SaLRQ7zyKQKGIk_ctYr1YqNHn8ROkSUmHMRsM/gviz/tq?tqx=out:json')
         .then(r => r.text())
         .then(txt => {
@@ -405,10 +403,10 @@ function t(key) {
                 row.c.forEach((cell, i) => {
                     obj[cols[i]] = cell ? cell.v : '';
                 });
-                // Extraction nom et numéro
+
                 let key = Object.keys(obj).find(k => k.includes('name of the pokémon'));
                 if (key && obj[key]) {
-                    let value = obj[key].trim(); // retire les espaces en trop
+                    let value = obj[key].trim(); 
                     let match = value.match(/^(.+?) \((\d+)\)$/);
                     if (match) {
                         obj.nom = match[1].trim();
@@ -418,23 +416,17 @@ function t(key) {
                         obj.numero = '';
                     }
                 }
-                // Extraction palette
                 let paletteKey = Object.keys(obj).find(k => k.includes('palette'));
                 if (paletteKey && obj[paletteKey]) {
-                    // On prend tout le contenu, y compris "11 => { ... }"
                     obj.palette = obj[paletteKey];
                 }
-                // Extraction vidéos
                 obj.video_sprite = obj['video of all base pokémon sprites'] || '';
                 obj.video_fusion = obj['video of all self-fusion pokémon sprites'] || '';
-                // Extraction likes
                 obj.like = obj['like'] || obj['likes'] || 0;
                 return obj;
             });
             afficherSiDetail();
         });
-
-    // Met à jour l'URL à chaque modification du champ de recherche
     searchInput.addEventListener('input', function() {
         let val = this.value.trim();
         if (val) {
@@ -442,11 +434,10 @@ function t(key) {
         } else {
             window.location.hash = '';
         }
-        // Suggestions visuelles
+
         let valLower = val.toLowerCase();
         suggestionsDiv.innerHTML = '';
         if (!valLower) return;
-        // Filtrer et ne garder qu'un seul résultat par numéro unique
         let seen = new Set();
         let results = [];
         for (let p of pokemons) {
@@ -472,9 +463,7 @@ function t(key) {
         });
     });
 
-    // Affiche la recherche dans le champ si hash = #/recherche=...
     function afficherSiDetail() {
-        // On récupère le paramètre ?r=NUM si présent
         const urlParams = new URLSearchParams(window.location.search);
         const rParam = urlParams.get('r');
         const lang = getLang();
@@ -498,7 +487,6 @@ function t(key) {
             }
             document.getElementById('valider-btn').textContent = t('validate');
             searchInput.focus();
-            // Déclenche suggestions
             let event = new Event('input');
             searchInput.dispatchEvent(event);
             return;
@@ -508,7 +496,6 @@ function t(key) {
             if (poke) afficherDetail(poke);
             else afficherErreur();
         } else {
-            // Afficher la recherche
             searchSection.style.display = 'block';
             detailDiv.style.display = 'none';
             mainTitle.textContent = t('searchTitle');
@@ -524,10 +511,8 @@ function t(key) {
         }
     }
 
-    // Navigation via hash
     window.addEventListener('hashchange', afficherSiDetail);
 
-    // === CONFIGURATION: URL de ton Apps Script déployé ===
 const API_LIKE_URL = "https://script.google.com/macros/s/AKfycbyyb8luWN-Q5jiz5NOV07FVxOq0QqDI55t9XeUW9E8ZMaTmrqCjwgZqgV7nT_Cj8idF/exec";
 
 function getLikeCount(num, author, callback) {
@@ -541,7 +526,6 @@ function updateLike(num, author, action, callback) {
         .then(val => callback(val));
 }
 
-// Nouvelle fonction utilitaire pour détecter le nombre de tiles dans un dossier donné
 function detectMaxTileInFolder(numero, folder, callback, maxTry = 50) {
     let count = 0;
     function tryNext(i) {
@@ -554,7 +538,6 @@ function detectMaxTileInFolder(numero, folder, callback, maxTry = 50) {
     tryNext(1);
 }
 
-    // Ajoute cette fonction utilitaire pour détecter le nombre de tiles disponibles
 function detectMaxTile(numero, callback, maxTry = 50) {
         let count = 0;
         function tryNext(i) {
@@ -568,7 +551,6 @@ function detectMaxTile(numero, callback, maxTry = 50) {
     }
 
     function afficherDetail(poke, varianteIndex = 0, variantes = null) {
-        // Initialisation de currentTile depuis l'URL
         const urlParams = new URLSearchParams(window.location.search);
         let currentTile = parseInt(urlParams.get('current'), 10);
         detectMaxTileInFolder(poke.numero, 'POKEMON_BASE', function(maxTile) {
@@ -580,7 +562,6 @@ function detectMaxTile(numero, callback, maxTry = 50) {
         if (!variantes) {
             variantes = pokemons.filter(p => p.numero && p.numero.toString() === poke.numero.toString());
         }
-        // Bloc Reference (design copié)
         let fusiondexImgUrl = '';
         let fusiondexShinyImgUrl = '';
         if (poke.numero) {
@@ -600,7 +581,6 @@ function detectMaxTile(numero, callback, maxTry = 50) {
                 </div>
             </div>
         `;
-        // Vidéos sous le bloc Reference
         let spriteVideoHtml = '';
         if (poke.video_sprite) {
             let match = poke.video_sprite.match(/[?&]id=([\w-]+)/);
@@ -628,7 +608,6 @@ function detectMaxTile(numero, callback, maxTry = 50) {
         if (!spriteVideoHtml && !fusionVideoHtml) {
             spriteVideoHtml = `<em>${t('noVideo')}</em>`;
         }
-        // Palette (copiable, responsive)
         let paletteHtml = poke.palette ? `
             <div class='palette-box' style='display:flex;align-items:flex-start;gap:1em;overflow-x:auto;max-width:100%;padding:0.5em 0;'>
                 <pre id='palette-pre' class='palette-pre' style='min-width:0;max-width:70vw;overflow-x:auto;white-space:pre;word-break:break-all;'>${poke.palette}</pre>
@@ -671,11 +650,9 @@ function detectMaxTile(numero, callback, maxTry = 50) {
                 <div style='text-align:right;margin-top:2.5em;font-size:1em;opacity:0.7;'> ${t('madeBy')} <b id='author-discord'></b></div>
             </div>
         `;
-        // Bouton retour : renvoie à la racine
         document.getElementById('back-to-search').onclick = function() {
             window.location.href = '/PIFShiny/?lang='+getLang();
         };
-        // Flèches navigation variantes
         if (variantes.length > 1) {
             document.getElementById('var-prev').onclick = function() {
                 let newIndex = (varianteIndex - 1 + variantes.length) % variantes.length;
@@ -686,7 +663,6 @@ function detectMaxTile(numero, callback, maxTry = 50) {
                 afficherDetail(variantes[newIndex], newIndex, variantes);
             };
         }
-        // Ajout du copier palette après l'injection HTML
         let copyBtn = document.getElementById('copy-palette');
         if (copyBtn) {
             copyBtn.onclick = function() {
@@ -696,17 +672,16 @@ function detectMaxTile(numero, callback, maxTry = 50) {
                 setTimeout(()=>{this.textContent=t('copyPalette');}, 1500);
             };
         }
-        // Affichage/activation du bouton like seulement si l'URL commence par /dev/
         let likeBtnContainer = document.getElementById('like-btn-container');
         let likeBtn = document.getElementById('like-btn');
-        if (!(window.location.pathname.startsWith('/dev/'))) {
+        const isDev = new URLSearchParams(window.location.search).get('dev') === 'true';
+        if (!isDev) {
             if (likeBtnContainer) likeBtnContainer.style.display = 'none';
         } else {
             if (likeBtnContainer) likeBtnContainer.style.display = 'flex';
             if (likeBtn) likeBtn.disabled = false;
         }
-        // Like system connecté à Google Sheets
-        if (window.location.pathname.startsWith('/dev/')) {
+        if (isDev) {
             let btn = likeBtn;
             let likeText = document.getElementById('like-text');
             let likeEmoji = document.getElementById('like-emoji');
@@ -744,11 +719,9 @@ function detectMaxTile(numero, callback, maxTry = 50) {
             };
         }
         document.getElementById('author-discord').textContent = author || 'Anonyme';
-        // Ajoute le preview shiny sous la section "Preview"
         let previewContainer = document.getElementById('preview-shiny-container');
         previewContainer.innerHTML = '';
 
-        // Ajoute le bouton "See Self" à côté du titre "Aperçu"
         let sectionTitle = detailDiv.querySelectorAll('.section-title')[1];
         if (sectionTitle && !document.getElementById('see-self-btn')) {
             let seeSelfBtn = document.createElement('button');
@@ -764,10 +737,7 @@ function detectMaxTile(numero, callback, maxTry = 50) {
             sectionTitle.appendChild(seeSelfBtn);
         }
 
-        // Etat du bouton See Self (false = POKEMON_BASE, true = POKEMON_SELF)
         let seeSelf = false;
-
-        // Fonction pour afficher le preview shiny selon le mode et détecter le bon maxTile
         function renderPreview() {
             let folder = seeSelf ? 'POKEMON_SELF' : 'POKEMON_BASE';
             detectMaxTileInFolder(poke.numero, folder, function(maxTile) {
@@ -776,7 +746,6 @@ function detectMaxTile(numero, callback, maxTry = 50) {
                 let previewDiv = renderPreviewShiny(poke, currentTile, maxTile, seeSelf);
                 previewContainer.appendChild(previewDiv);
 
-                // handlers preview shiny
                 let normalImg = previewDiv.querySelector('#preview-normal');
                 let shinyImg = previewDiv.querySelector('#preview-shiny');
                 let doubleBtn = previewDiv.querySelector('#double-shiny-btn');
@@ -786,8 +755,6 @@ function detectMaxTile(numero, callback, maxTry = 50) {
                 let palettePairs = parsePaletteLine(poke.palette);
                 let doubleShiny = false;
                 let minTile = 1;
-                // Remplace let maxTile = 12; par la valeur détectée
-                // let maxTile = 12;
                 function updateImages() {
                     normalImg.src = (seeSelf
                         ? `POKEMON_SELF/${poke.numero}/tile${currentTile}.png`
@@ -851,16 +818,14 @@ function detectMaxTile(numero, callback, maxTry = 50) {
 
         renderPreview();
 
-        // Handler pour le bouton "Voir Self"
         let seeSelfBtn = document.getElementById('see-self-btn');
         if (seeSelfBtn) {
             seeSelfBtn.onclick = function() {
                 seeSelf = !seeSelf;
                 seeSelfBtn.textContent = seeSelf ? t('seeSelfOn') : t('seeSelfOff');
-                renderPreview(); // Appelle à chaque fois pour redétecter le maxTile du dossier actif
+                renderPreview();
             };
         }
-        // ...existing code (like, palette, variantes, etc)...
     });
     }
     function afficherErreur() {
@@ -869,13 +834,10 @@ function detectMaxTile(numero, callback, maxTry = 50) {
         mainTitle.textContent = t('notFound');
         detailDiv.innerHTML = `<p>${t('notFoundMsg')}</p><div style="margin-top:1em;"><a href="/" class="back-link">${t('back')}</a></div>`;
     }
-
-    // Autocomplétion (toujours affichée)
     searchInput.addEventListener('input', function() {
         let val = this.value.toLowerCase();
         suggestionsDiv.innerHTML = '';
         if (!val) return;
-        // Suggestions uniques par numéro
         let seen = new Set();
         let results = [];
         for (let p of pokemons) {
@@ -901,15 +863,12 @@ function detectMaxTile(numero, callback, maxTry = 50) {
         });
     });
 
-    // Remplace la navigation par hash par navigation via ?r=NUM
     function goToDetail(num) {
         const url = new URL(window.location.href);
         url.searchParams.set('r', num);
         history.pushState({}, '', url);
         afficherSiDetail();
     }
-
-    // Ajout du bouton Valider pour valider la recherche par numéro
     let validerBtn = document.getElementById('valider-btn');
     validerBtn.onclick = function() {
         let val = searchInput.value.trim();
@@ -924,8 +883,6 @@ function detectMaxTile(numero, callback, maxTry = 50) {
             alert(t('notFoundNum'));
         }
     };
-
-    // Gestion du choix de langue dynamique
     const langBtns = document.querySelectorAll('.lang-btn');
     function setLang(lang) {
         const url = new URL(window.location.href);
@@ -938,13 +895,11 @@ function detectMaxTile(numero, callback, maxTry = 50) {
             btn.classList.add('active');
         }
     });
-    // Titre dynamique selon la langue
     function updateTitle() {
         const lang = getLang();
         const title = t('searchTitle');
         document.getElementById('main-title').textContent = title;
         document.title = title;
-        // Placeholder dynamique
         searchInput.placeholder = t('placeholder');
         document.getElementById('valider-btn').textContent = t('validate');
         document.getElementById('footer-credit').innerHTML = t('credit');
@@ -952,9 +907,8 @@ function detectMaxTile(numero, callback, maxTry = 50) {
     updateTitle();
     window.addEventListener('popstate', updateTitle);
 
-    // Ajoute la fonction de transformation shiny JS (reprend la logique du ShinyEditor)
     function parsePaletteLine(palette) {
-        // Gère aussi les palettes type: 3 => { c1: "#FFFFFF.#FFFFFF", ... }
+
         if (!palette) return [];
         let match = palette.match(/\{(.+)\}/);
         if (!match) return [];
@@ -965,7 +919,6 @@ function detectMaxTile(numero, callback, maxTry = 50) {
             if (m) {
                 let [from, to] = m[1].split('.');
                 if (from && to) {
-                    // Supporte format hex ou décimal
                     let fromArr = from.trim().startsWith('#')
                         ? hexToRgb(from.trim())
                         : from.trim().split(' ').map(Number);
@@ -991,7 +944,6 @@ function detectMaxTile(numero, callback, maxTry = 50) {
         return '#' + rgb.map(x => x.toString(16).padStart(2, '0')).join('');
     }
     function applyPaletteToImage(img, palettePairs, doubleShiny, callback) {
-        // Logique inspirée du ShinyEditor (application fidèle)
         let canvas = document.createElement('canvas');
         canvas.width = img.naturalWidth;
         canvas.height = img.naturalHeight;
@@ -1038,11 +990,8 @@ function detectMaxTile(numero, callback, maxTry = 50) {
             callback(canvas.toDataURL());
         }
     }
-
-    // Affiche le preview shiny sous la section "Référence"
     function renderPreviewShiny(poke, number = 1, maxTile = 1, seeSelf = false) {
         let minTile = 1;
-        // let maxTile = 12; // Supprime cette ligne
         let imgUrl = (seeSelf
             ? `POKEMON_SELF/${poke.numero}/tile${number}.png`
             : `POKEMON_BASE/${poke.numero}/tile${number}.png`);
@@ -1073,7 +1022,6 @@ function detectMaxTile(numero, callback, maxTry = 50) {
             let tileNext = previewDiv.querySelector('#tile-next');
             let doubleShiny = false;
             let currentTile = number;
-            // Fonction pour mettre à jour l'URL ?current= dynamiquement
             function updateUrlTile() {
                 const url = new URL(window.location.href);
                 url.searchParams.set('current', currentTile);
@@ -1083,8 +1031,6 @@ function detectMaxTile(numero, callback, maxTry = 50) {
                 normalImg.src = (seeSelf
                     ? `POKEMON_SELF/${poke.numero}/tile${currentTile}.png`
                     : `POKEMON_BASE/${poke.numero}/tile${currentTile}.png`);
-                // Optionnel: afficher le nom du tile
-                // tileLabel.textContent = `tile${currentTile}.png`;
             }
             function updateShinyPreview() {
                 if (!palettePairs.length) {
@@ -1113,7 +1059,7 @@ function detectMaxTile(numero, callback, maxTry = 50) {
             tilePrev.onclick = function() {
                 currentTile = currentTile <= minTile ? maxTile : currentTile - 1;
                 updateImages();
-                updateUrlTile(); // Ajout de la synchro URL
+                updateUrlTile();
             };
             tileNext.addEventListener('mousedown', () => tileNext.src = 'OVERLAY/arrow_right_pressed.png');
             tileNext.addEventListener('mouseup', () => tileNext.src = 'OVERLAY/arrow_right_overlay.png');
@@ -1129,7 +1075,7 @@ function detectMaxTile(numero, callback, maxTry = 50) {
             tileNext.onclick = function() {
                 currentTile = currentTile >= maxTile ? minTile : currentTile + 1;
                 updateImages();
-                updateUrlTile(); // Ajout de la synchro URL
+                updateUrlTile();
             };
             normalImg.addEventListener('load', updateShinyPreview);
         }, 0);

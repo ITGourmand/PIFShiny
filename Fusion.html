@@ -634,19 +634,17 @@ function detectMaxTile(numero, callback, maxTry = 50) {
                 setTimeout(()=>{this.textContent=t('copyPalette');}, 1500);
             };
         }
-        // Affichage/activation du bouton like seulement si ?dev=true dans l'URL
+        // Affichage/activation du bouton like seulement si l'URL commence par /dev/
         let likeBtnContainer = document.getElementById('like-btn-container');
         let likeBtn = document.getElementById('like-btn');
-        const urlParams = new URLSearchParams(window.location.search);
-        const isDev = urlParams.get('dev') === 'true';
-        if (!isDev) {
+        if (!(window.location.pathname.startsWith('/dev/'))) {
             if (likeBtnContainer) likeBtnContainer.style.display = 'none';
         } else {
             if (likeBtnContainer) likeBtnContainer.style.display = 'flex';
             if (likeBtn) likeBtn.disabled = false;
         }
         // Like system connecté à Google Sheets
-        if (isDev) {
+        if (window.location.pathname.startsWith('/dev/')) {
             let btn = likeBtn;
             let likeText = document.getElementById('like-text');
             let likeEmoji = document.getElementById('like-emoji');

@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Recherche Pokémon</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 2em;
+            background: linear-gradient(135deg, #2a0845 0%, #6441a5 100%);
+            min-height: 100vh;
+            color: #f3eaff;
+        }
+        .dynamic-title {
+            font-size: 2.8em;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 0.2em;
+            letter-spacing: 2px;
+            color: #b388ff;
+            text-shadow: 0 2px 16px #0008, 0 1px 0 #fff2;
+            animation: titlePulse 2s infinite alternate;
+        }
+        @keyframes titlePulse {
+            from { color: #b388ff; text-shadow: 0 2px 16px #0008, 0 1px 0 #fff2; }
+            to { color: #fff; text-shadow: 0 4px 32px #7c4dff, 0 1px 0 #fff2; }
+        }
+        .lang-switch {
+            display: flex;
+            justify-content: center;
+            gap: 1em;
+            margin-bottom: 2em;
+        }
+        .lang-btn {
+            background: #7c4dff;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 22px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 8px #0003;
+            transition: background 0.2s, color 0.2s, transform 0.2s;
+        }
+        .lang-btn:hover, .lang-btn.active {
+            background: #b388ff;
+            color: #2a0845;
+            transform: scale(1.08);
+        }
+        .search-box {
+            background: #3d246c;
+            border-radius: 14px;
+            box-shadow: 0 2px 16px #0005;
+            padding: 2em 1.5em 1.5em 1.5em;
+            margin-bottom: 2em;
+        }
+        input[type="text"] {
+            background: #2a0845;
+            color: #fff;
+            border: 1px solid #7c4dff;
+            font-size: 1.1em;
+        }
+        input[type="text"]::placeholder {
+            color: #b388ff;
+            opacity: 0.7;
+        }
+        button {
+            font-family: inherit;
+        }
+        .suggestions {
+            background: #2a0845;
+            color: #fff;
+            border: 1px solid #7c4dff;
+        }
+        .suggestion {
+            border-bottom: 1px solid #6441a5;
+        }
+        .suggestion:hover {
+            background: #7c4dff;
+            color: #2a0845;
+        }
+        .card {
+            background: #3d246c;
+            color: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px #0005;
+            position: relative; /* Ajouté pour positionner les flèches */
+        }
+        /* Flèches variantes sur les côtés */
+        .var-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 2;
+            font-size: 2em;
+            padding: 0.2em 0.7em;
+            border-radius: 50%;
+            border: none;
+            background: #b388ff;
+            color: #2a0845;
+            cursor: pointer;
+            box-shadow: 0 2px 8px #7c4dff33;
+            transition: background 0.2s, color 0.2s, transform 0.2s;
+        }
+        .var-arrow:hover {
+            background: #fff;
+            color: #7c4dff;
+            transform: translateY(-50%) scale(1.08);
+        }
+        .var-arrow.left {
+            left: -70px;
+        }
+        .var-arrow.right {
+            right: -70px;
+        }
+        @media (max-width: 600px) {
+            .var-arrow.left { left: -10px; }
+            .var-arrow.right { right: -10px; }
+        }
+        .poke-title {
+            color: #b388ff;
+        }
+        .section-title {
+            color: #fff;
+            border-left: 4px solid #b388ff;
+        }
+        .video-block {
+            background: #2a0845;
+            color: #fff;
+            box-shadow: 0 2px 8px #7c4dff33;
+        }
+        .dl-btn {
+            background: #b388ff;
+            color: #2a0845;
+        }
+        .dl-btn:hover {
+            background: #fff;
+            color: #7c4dff;
+        }
+        .palette-box {
+            background: #6441a5;
+            color: #fff;
+            border-radius: 10px;
+            padding: 1em;
+            max-width: 100%;
+            overflow-x: auto;
+            display: flex;
+            align-items: flex-start;
+            gap: 1em;
+            margin-bottom: 1em;
+        }
+        .palette-pre {
+            background: transparent;
+            color: #fff;
+            font-size: 1em;
+            margin: 0;
+            padding: 0;
+            border: none;
+            white-space: pre;
+            max-width: 70vw;
+            min-width: 0;
+            overflow-x: auto;
+            word-break: break-all;
+        }
+        .copy-btn {
+            flex-shrink: 0;
+        }
+        @media (max-width: 600px) {
+            .palette-pre { max-width: 50vw; font-size: 0.95em; }
+            .palette-box { flex-direction: column; gap: 0.5em; }
+        }
+        .like-btn {
+            background: #fff;
+            color: #7c4dff;
+        }
+        .like-btn:hover {
+            background: #b388ff;
+            color: #2a0845;
+        }
+        .back-link {
+            color: #b388ff;
+        }
+        .back-link:hover {
+            color: #fff;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: none; }
+        }
+        .footer-credits {
+            text-align: center;
+            color: #b388ff;
+            font-size: 1em;
+            margin-top: 3em;
+            margin-bottom: 1em;
+            opacity: 0.8;
+        }
+        .preview-modal-bg {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(30,20,60,0.85);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .preview-modal {
+            background: #2a0845;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px #000a;
+            padding: 2em 2em 1.5em 2em;
+            max-width: 95vw;
+            max-height: 90vh;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        .preview-images {
+            display: flex;
+            gap: 2em;
+            align-items: flex-end;
+            margin-bottom: 1em;
+        }
+        .preview-images img {
+            max-width: 220px;
+            max-height: 220px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px #7c4dff44;
+            background: #fff;
+        }
+        .preview-close {
+            position: absolute;
+            top: 10px; right: 18px;
+            background: #b388ff;
+            color: #2a0845;
+            border: none;
+            border-radius: 50%;
+            width: 36px; height: 36px;
+            font-size: 1.5em;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 2px 8px #7c4dff33;
+        }
+        .preview-close:hover {
+            background: #fff;
+            color: #7c4dff;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="main-title" class="dynamic-title">Recherche Pokémon</h1>
+    <div class="lang-switch">
+        <button id="lang-fr" class="lang-btn">FR</button>
+        <button id="lang-en" class="lang-btn">EN</button>
+    </div>
+    <div class="search-box" id="search-section">
+        <input type="text" id="search" placeholder="Numéro du Pokémon..." autocomplete="off">
+        <button id="valider-btn" style="margin-top:10px;width:100%;padding:10px;font-size:1em;border-radius:5px;background:#1976d2;color:#fff;border:none;cursor:pointer;">Valider</button>
+        <div id="suggestions" class="suggestions"></div>
+    </div>
+    <div id="pokemon-detail" style="display:none; max-width:800px; margin:auto; background:#fff; padding:2em; border-radius:10px; box-shadow:0 2px 8px #0001;"></div>
+    <footer class="footer-credits">
+        <div id="footer-credit"></div>
+    </footer>
+    <script>
+    // Objet de traduction centralisé
+const translations = {
+    fr: {
+        searchTitle: 'Recherche Pokémon',
+        validate: 'Valider',
+        placeholder: 'Numéro du Pokémon...',
+        sprite: 'Sprite',
+        fusion: 'Fusion',
+        reference: 'Référence',
+        downloadVideo: 'Télécharger la vidéo',
+        noVideo: 'Aucune vidéo disponible',
+        palette: 'Palette',
+        copyPalette: 'Copier la palette',
+        copied: 'Copié !',
+        noPalette: 'Pas de palette',
+        like: 'UpVote',
+        unlike: 'DownVote',
+        notFound: 'Pokémon introuvable',
+        notFoundMsg: 'Ce Pokémon n\'existe pas ou aucune donnée n\'a été trouvée.',
+        back: 'Retour à la recherche',
+        enterValid: 'Veuillez entrer un numéro de Pokémon valide.',
+        notFoundNum: 'Aucun Pokémon trouvé avec ce numéro.',
+        credit: 'Pokédex Shiny Fusion – Réalisé par <b>anthonygourmand</b> • Données issues de Pokémon Infinite Fusion • Crée par <b>Frog</b>',
+        preview: 'Aperçu',
+        madeBy: 'Fait par',
+        seeSelf: 'Voir Self',
+        seeSelfOn: 'Voir Self: ON',
+        seeSelfOff: 'Voir Self: OFF'
+    },
+    en: {
+        searchTitle: 'Pokémon Search',
+        validate: 'Validate',
+        placeholder: 'Pokémon number...',
+        sprite: 'Sprite',
+        fusion: 'Fusion',
+        reference: 'Reference',
+        downloadVideo: 'Download video',
+        noVideo: 'No video available',
+        palette: 'Palette',
+        copyPalette: 'Copy palette',
+        copied: 'Copied!',
+        noPalette: 'No palette',
+        like: 'UpVote',
+        unlike: 'DownVote',
+        notFound: 'Pokémon not found',
+        notFoundMsg: 'This Pokémon does not exist or no data was found.',
+        back: 'Back to search',
+        enterValid: 'Please enter a valid Pokémon number.',
+        notFoundNum: 'No Pokémon found with this number.',
+        credit: 'Pokedex Shiny Fusion – Created by <b>anthonygourmand</b> • Data from Pokémon Infinite Fusion • Created by <b>Frog</b>',
+        preview: 'Preview',
+        madeBy: 'Made by',
+        seeSelf: 'See Self',
+        seeSelfOn: 'See Self: ON',
+        seeSelfOff: 'See Self: OFF'
+    }
+};
+
+function getLang() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('lang') || 'en';
+}
+function t(key) {
+    const lang = getLang();
+    return translations[lang][key] || key;
+}
+
+    let pokemons = [];
+    let suggestionsDiv = document.getElementById('suggestions');
+    let searchInput = document.getElementById('search');
+    let detailDiv = document.getElementById('pokemon-detail');
+    let searchSection = document.getElementById('search-section');
+    let mainTitle = document.getElementById('main-title');
+
+    // Récupération des données Google Sheets
+    fetch('https://docs.google.com/spreadsheets/d/1N-wZs3SaLRQ7zyKQKGIk_ctYr1YqNHn8ROkSUmHMRsM/gviz/tq?tqx=out:json')
+        .then(r => r.text())
+        .then(txt => {
+            let json = JSON.parse(txt.substring(47).slice(0, -2));
+            let cols = json.table.cols.map(c => c.label.toLowerCase());
+            pokemons = json.table.rows.map(row => {
+                let obj = {};
+                row.c.forEach((cell, i) => {
+                    obj[cols[i]] = cell ? cell.v : '';
+                });
+                // Extraction nom et numéro
+                let key = Object.keys(obj).find(k => k.includes('name of the pokémon'));
+                if (key && obj[key]) {
+                    let value = obj[key].trim(); // retire les espaces en trop
+                    let match = value.match(/^(.+?) \((\d+)\)$/);
+                    if (match) {
+                        obj.nom = match[1].trim();
+                        obj.numero = match[2].trim();
+                    } else {
+                        obj.nom = value.trim();
+                        obj.numero = '';
+                    }
+                }
+                // Extraction palette
+                let paletteKey = Object.keys(obj).find(k => k.includes('palette'));
+                if (paletteKey && obj[paletteKey]) {
+                    // On prend tout le contenu, y compris "11 => { ... }"
+                    obj.palette = obj[paletteKey];
+                }
+                // Extraction vidéos
+                obj.video_sprite = obj['video of all base pokémon sprites'] || '';
+                obj.video_fusion = obj['video of all self-fusion pokémon sprites'] || '';
+                // Extraction likes
+                obj.like = obj['like'] || obj['likes'] || 0;
+                return obj;
+            });
+            afficherSiDetail();
+        });
+
+    // Met à jour l'URL à chaque modification du champ de recherche
+    searchInput.addEventListener('input', function() {
+        let val = this.value.trim();
+        if (val) {
+            window.location.hash = `/recherche=${encodeURIComponent(val)}`;
+        } else {
+            window.location.hash = '';
+        }
+        // Suggestions visuelles
+        let valLower = val.toLowerCase();
+        suggestionsDiv.innerHTML = '';
+        if (!valLower) return;
+        // Filtrer et ne garder qu'un seul résultat par numéro unique
+        let seen = new Set();
+        let results = [];
+        for (let p of pokemons) {
+            let num = p.numero ? p.numero.toString().trim() : '';
+            if (
+                ((p.numero && p.numero.toString().includes(valLower)) ||
+                (p.nom && p.nom.toLowerCase().includes(valLower)))
+                && num && !seen.has(num)
+            ) {
+                seen.add(num);
+                results.push(p);
+            }
+            if (results.length >= 10) break;
+        }
+        results.forEach(p => {
+            let div = document.createElement('div');
+            div.className = 'suggestion';
+            div.textContent = `#${(p.numero || '').toString().trim()} - ${(p.nom || '').trim()}`;
+            div.onclick = () => {
+                window.location.hash = `/${p.numero}`;
+            };
+            suggestionsDiv.appendChild(div);
+        });
+    });
+
+    // Affiche la recherche dans le champ si hash = #/recherche=...
+    function afficherSiDetail() {
+        // On récupère le paramètre ?r=NUM si présent
+        const urlParams = new URLSearchParams(window.location.search);
+        const rParam = urlParams.get('r');
+        const lang = getLang();
+        if (rParam && !isNaN(rParam)) {
+            let poke = pokemons.find(p => p.numero && p.numero.toString() === rParam);
+            if (poke) afficherDetail(poke);
+            else afficherErreur();
+            return;
+        }
+        let hash = window.location.hash.replace(/^#\/?/, '');
+        if (hash.startsWith('recherche=')) {
+            let val = decodeURIComponent(hash.replace('recherche=', ''));
+            searchSection.style.display = 'block';
+            detailDiv.style.display = 'none';
+            mainTitle.textContent = t('searchTitle');
+            searchInput.value = val;
+            searchInput.placeholder = t('searchPlaceholder');
+            document.getElementById('valider-btn').textContent = t('validate');
+            searchInput.focus();
+            // Déclenche suggestions
+            let event = new Event('input');
+            searchInput.dispatchEvent(event);
+            return;
+        }
+        if (hash && !isNaN(hash)) {
+            let poke = pokemons.find(p => p.numero && p.numero.toString() === hash);
+            if (poke) afficherDetail(poke);
+            else afficherErreur();
+        } else {
+            // Afficher la recherche
+            searchSection.style.display = 'block';
+            detailDiv.style.display = 'none';
+            mainTitle.textContent = t('searchTitle');
+            searchInput.value = '';
+            searchInput.placeholder = t('searchPlaceholder');
+            document.getElementById('valider-btn').textContent = t('validate');
+            suggestionsDiv.innerHTML = '';
+            searchInput.focus();
+        }
+    }
+
+    // Navigation via hash
+    window.addEventListener('hashchange', afficherSiDetail);
+
+    // === CONFIGURATION: URL de ton Apps Script déployé ===
+const API_LIKE_URL = "https://script.google.com/macros/s/AKfycbyyb8luWN-Q5jiz5NOV07FVxOq0QqDI55t9XeUW9E8ZMaTmrqCjwgZqgV7nT_Cj8idF/exec";
+
+function getLikeCount(num, author, callback) {
+    fetch(`${API_LIKE_URL}?num=${encodeURIComponent(num)}&author=${encodeURIComponent(author)}&action=get`)
+        .then(r => r.text())
+        .then(val => callback(val));
+}
+function updateLike(num, author, action, callback) {
+    fetch(`${API_LIKE_URL}?num=${encodeURIComponent(num)}&author=${encodeURIComponent(author)}&action=${action}`)
+        .then(r => r.text())
+        .then(val => callback(val));
+}
+
+// Nouvelle fonction utilitaire pour détecter le nombre de tiles dans un dossier donné
+function detectMaxTileInFolder(numero, folder, callback, maxTry = 50) {
+    let count = 0;
+    function tryNext(i) {
+        if (i > maxTry) return callback(count);
+        let img = new Image();
+        img.onload = () => { count = i; tryNext(i + 1); };
+        img.onerror = () => callback(count);
+        img.src = `${folder}/${numero}/tile${i}.png`;
+    }
+    tryNext(1);
+}
+
+    // Ajoute cette fonction utilitaire pour détecter le nombre de tiles disponibles
+function detectMaxTile(numero, callback, maxTry = 50) {
+        let count = 0;
+        function tryNext(i) {
+            if (i > maxTry) return callback(count);
+            let img = new Image();
+            img.onload = () => { count = i; tryNext(i + 1); };
+            img.onerror = () => callback(count);
+            img.src = `POKEMON_BASE/${numero}/tile${i}.png`;
+        }
+        tryNext(1);
+    }
+
+    function afficherDetail(poke, varianteIndex = 0, variantes = null) {
+        // Initialisation de currentTile depuis l'URL
+        const urlParams = new URLSearchParams(window.location.search);
+        let currentTile = parseInt(urlParams.get('current'), 10);
+        detectMaxTile(poke.numero, function(maxTile) {
+        if (isNaN(currentTile) || currentTile < 1 || currentTile > maxTile) currentTile = 1;
+        searchSection.style.display = 'none';
+        detailDiv.style.display = 'block';
+        mainTitle.textContent = `#${poke.numero} - ${poke.nom}`;
+        const lang = getLang();
+        if (!variantes) {
+            variantes = pokemons.filter(p => p.numero && p.numero.toString() === poke.numero.toString());
+        }
+        // Bloc Reference (design copié)
+        let fusiondexImgUrl = '';
+        let fusiondexShinyImgUrl = '';
+        if (poke.numero) {
+            let numStr = poke.numero.toString().padStart(3, '0');
+            fusiondexImgUrl = `FOUND/${numStr}.png`;
+            fusiondexShinyImgUrl = `FOUND SHINY/${numStr}.png`;
+        }
+        let refBlock = `
+            <div class="video-block" style="margin-bottom:1.2em;display:flex;align-items:center;gap:2em;justify-content:center;">
+                <div style='text-align:center;'>
+                  <b>Normal:</b><br>
+                  <img src='${fusiondexImgUrl}' alt='FusionDex #${poke.numero}' style='max-width:180px;max-height:180px;display:block;margin:0.5em auto 0 auto;border-radius:12px;box-shadow:0 2px 8px #7c4dff44;'>
+                </div>
+                <div style='text-align:center;'>
+                  <b>Shiny:</b><br>
+                  <img src='${fusiondexShinyImgUrl}' alt='FusionDex Shiny #${poke.numero}' style='max-width:180px;max-height:180px;display:block;margin:0.5em auto 0 auto;border-radius:12px;box-shadow:0 2px 8px #7c4dff44;'>
+                </div>
+            </div>
+        `;
+        // Vidéos sous le bloc Reference
+        let spriteVideoHtml = '';
+        if (poke.video_sprite) {
+            let match = poke.video_sprite.match(/[?&]id=([\w-]+)/);
+            let fileId = match ? match[1] : '';
+            let videoUrl = fileId ? `https://drive.usercontent.google.com/u/0/uc?id=${fileId}&export=download` : poke.video_sprite;
+            spriteVideoHtml += `
+                <div class="video-block" style="margin:0.7em 0 0.7em 0;">
+                    <b>${t('sprite')} :</b><br>
+                    <button class='dl-btn' onclick="window.open('${videoUrl}','_blank')">${t('downloadVideo')}</button>
+                </div>
+            `;
+        }
+        let fusionVideoHtml = '';
+        if (poke.video_fusion) {
+            let match = poke.video_fusion.match(/[?&]id=([\w-]+)/);
+            let fileId = match ? match[1] : '';
+            let videoUrl = fileId ? `https://drive.usercontent.google.com/u/0/uc?id=${fileId}&export=download` : poke.video_fusion;
+            fusionVideoHtml += `
+                <div class="video-block" style="margin:0.7em 0 0.7em 0;">
+                    <b>${t('fusion')} :</b><br>
+                    <button class='dl-btn' onclick="window.open('${videoUrl}','_blank')">${t('downloadVideo')}</button>
+                </div>
+            `;
+        }
+        if (!spriteVideoHtml && !fusionVideoHtml) {
+            spriteVideoHtml = `<em>${t('noVideo')}</em>`;
+        }
+        // Palette (copiable, responsive)
+        let paletteHtml = poke.palette ? `
+            <div class='palette-box' style='display:flex;align-items:flex-start;gap:1em;overflow-x:auto;max-width:100%;padding:0.5em 0;'>
+                <pre id='palette-pre' class='palette-pre' style='min-width:0;max-width:70vw;overflow-x:auto;white-space:pre;word-break:break-all;'>${poke.palette}</pre>
+                <button id='copy-palette' class='copy-btn'>${t('copyPalette')}</button>
+            </div>
+        ` : `<em>${t('noPalette')}</em>`;
+        let author = poke['enter your discord username (for feedback)'] ? poke['enter your discord username (for feedback)'].trim() : '';
+        let likeKey = `like_${poke.numero}_${author}`;
+        let liked = !!localStorage.getItem(likeKey);
+        let likeBtnText = liked ? `${t('unlike')} (...)` : `${t('like')} (...)`;
+        let navHtml = '';
+        if (variantes.length > 1) {
+            navHtml = `
+                <button id='var-prev' class='var-arrow left' title='Précédent' style="background:none;border:none;padding:0;width:48px;height:48px;">
+                    <img id='var-prev-img' src='OVERLAY/arrow_left_overlay.png' style='width:48px;height:48px;transition:transform 0.15s;' draggable='false' />
+                </button>
+                <button id='var-next' class='var-arrow right' title='Suivant' style="background:none;border:none;padding:0;width:48px;height:48px;">
+                    <img id='var-next-img' src='OVERLAY/arrow_right_overlay.png' style='width:48px;height:48px;transition:transform 0.15s;' draggable='false' />
+                </button>
+            `;
+        }
+        detailDiv.innerHTML = `
+            <div class='card' style='box-shadow:0 6px 32px #7c4dff44; border:1px solid #7c4dff; padding:2em 1.5em; position:relative;'>
+                <button id='back-to-search' style='margin-bottom:1.5em;background:#b388ff;color:#2a0845;font-weight:bold;border:none;border-radius:8px;padding:8px 22px;font-size:1.1em;cursor:pointer;box-shadow:0 2px 8px #7c4dff33;'>← ${t('back')}</button>
+                ${navHtml}
+                <h3 class='section-title' style='margin-top:0.5em; font-size:1.2em;'>${t('reference')}</h3>
+                ${refBlock}
+                ${spriteVideoHtml}
+                ${fusionVideoHtml}
+                <h3 class='section-title' style='margin-top:1.2em; font-size:1.2em;'>${t('preview')}</h3>
+                <div id="preview-shiny-container"></div>
+                <h3 class='section-title' style='margin-top:1.2em; font-size:1.2em;'>${t('palette')}</h3>
+                ${paletteHtml}
+                <div style='display:flex;justify-content:center;margin-top:2em;'>
+                  <button id='like-btn' class='like-btn' style='background:linear-gradient(90deg,#7c4dff 60%,#b388ff 100%);color:#fff;font-size:1.25em;padding:0.7em 2.2em;border-radius:30px;border:none;box-shadow:0 2px 12px #7c4dff44;transition:background 0.2s,transform 0.2s;cursor:pointer;display:flex;align-items:center;gap:0.7em;letter-spacing:1px;outline:none;'>
+                    <span style='font-size:1.3em;' id='like-emoji'>${liked ? '👇' : '☝'}</span>
+                    <span id='like-text'>${likeBtnText}</span>
+                  </button>
+                </div>
+                <div style='text-align:right;margin-top:2.5em;font-size:1em;opacity:0.7;'> ${t('madeBy')} <b id='author-discord'></b></div>
+            </div>
+        `;
+        // Bouton retour : renvoie à la racine
+        document.getElementById('back-to-search').onclick = function() {
+            window.location.href = '/';
+        };
+        // Flèches navigation variantes
+        if (variantes.length > 1) {
+            document.getElementById('var-prev').onclick = function() {
+                let newIndex = (varianteIndex - 1 + variantes.length) % variantes.length;
+                afficherDetail(variantes[newIndex], newIndex, variantes);
+            };
+            document.getElementById('var-next').onclick = function() {
+                let newIndex = (varianteIndex + 1) % variantes.length;
+                afficherDetail(variantes[newIndex], newIndex, variantes);
+            };
+        }
+        // Ajout du copier palette après l'injection HTML
+        let copyBtn = document.getElementById('copy-palette');
+        if (copyBtn) {
+            copyBtn.onclick = function() {
+                let text = document.getElementById('palette-pre').innerText;
+                navigator.clipboard.writeText(text);
+                this.textContent = t('copied');
+                setTimeout(()=>{this.textContent=t('copyPalette');}, 1500);
+            };
+        }
+        // Like system connecté à Google Sheets
+        let btn = document.getElementById('like-btn');
+        let likeText = document.getElementById('like-text');
+        let likeEmoji = document.getElementById('like-emoji');
+        function setLikeBtnState(liked, count) {
+            likeText.textContent = (liked ? t('unlike') : t('like')) + ` (${count})`;
+            likeEmoji.textContent = liked ? '👇' : '☝'
+            btn.style.background = liked
+              ? 'linear-gradient(90deg,#fff 60%,#b388ff 100%)'
+              : 'linear-gradient(90deg,#7c4dff 60%,#b388ff 100%)';
+            btn.style.color = liked ? '#7c4dff' : '#fff';
+        }
+        getLikeCount(poke.numero, author, function(count) {
+            let liked = !!localStorage.getItem(likeKey);
+            setLikeBtnState(liked, count);
+            btn.disabled = false;
+        });
+        btn.onmousedown = () => btn.style.transform = 'scale(0.96)';
+        btn.onmouseup = btn.onmouseleave = () => btn.style.transform = 'scale(1)';
+        btn.onclick = function() {
+            if (btn.disabled) return;
+            let currentLiked = !!localStorage.getItem(likeKey);
+            let action = currentLiked ? "dec" : "inc";
+            let newLiked = !currentLiked;
+            if (newLiked) localStorage.setItem(likeKey, '1');
+            else localStorage.removeItem(likeKey);
+            likeText.textContent = t('waiting') || '...';
+            btn.disabled = true;
+            btn.style.transform = 'scale(0.96)';
+            updateLike(poke.numero, author, action, function(newCount) {
+                let finalLiked = !!localStorage.getItem(likeKey);
+                setLikeBtnState(finalLiked, newCount);
+                btn.disabled = false;
+                btn.style.transform = 'scale(1)';
+            });
+        };
+        document.getElementById('author-discord').textContent = author || 'Anonyme';
+        // Ajoute le preview shiny sous la section "Preview"
+        let previewContainer = document.getElementById('preview-shiny-container');
+        previewContainer.innerHTML = '';
+
+        // Ajoute le bouton "See Self" à côté du titre "Aperçu"
+        let sectionTitle = detailDiv.querySelectorAll('.section-title')[1];
+        if (sectionTitle && !document.getElementById('see-self-btn')) {
+            let seeSelfBtn = document.createElement('button');
+            seeSelfBtn.id = 'see-self-btn';
+            seeSelfBtn.className = 'dl-btn';
+            seeSelfBtn.style.marginLeft = '1em';
+            seeSelfBtn.style.fontSize = '0.95em';
+            seeSelfBtn.style.borderRadius = '8px';
+            seeSelfBtn.style.padding = '4px 18px';
+            seeSelfBtn.style.fontWeight = 'bold';
+            seeSelfBtn.style.cursor = 'pointer';
+            seeSelfBtn.textContent = t('seeSelfOff');
+            sectionTitle.appendChild(seeSelfBtn);
+        }
+
+        // Etat du bouton See Self (false = POKEMON_BASE, true = POKEMON_SELF)
+        let seeSelf = false;
+
+        // Fonction pour afficher le preview shiny selon le mode et détecter le bon maxTile
+        function renderPreview() {
+            let folder = seeSelf ? 'POKEMON_SELF' : 'POKEMON_BASE';
+            detectMaxTileInFolder(poke.numero, folder, function(maxTile) {
+                if (isNaN(currentTile) || currentTile < 1 || currentTile > maxTile) currentTile = 1;
+                previewContainer.innerHTML = '';
+                let previewDiv = renderPreviewShiny(poke, currentTile, maxTile, seeSelf);
+                previewContainer.appendChild(previewDiv);
+
+                // handlers preview shiny
+                let normalImg = previewDiv.querySelector('#preview-normal');
+                let shinyImg = previewDiv.querySelector('#preview-shiny');
+                let doubleBtn = previewDiv.querySelector('#double-shiny-btn');
+                let tilePrev = previewDiv.querySelector('#tile-prev');
+                let tileNext = previewDiv.querySelector('#tile-next');
+                let tileLabel = previewDiv.querySelector('#tile-label');
+                let palettePairs = parsePaletteLine(poke.palette);
+                let doubleShiny = false;
+                let minTile = 1;
+                // Remplace let maxTile = 12; par la valeur détectée
+                // let maxTile = 12;
+                function updateImages() {
+                    normalImg.src = (seeSelf
+                        ? `POKEMON_SELF/${poke.numero}/tile${currentTile}.png`
+                        : `POKEMON_BASE/${poke.numero}/tile${currentTile}.png`);
+                    if (tileLabel) tileLabel.textContent = `tile${currentTile}.png`;
+                    
+                }
+                function updateShinyPreview() {
+                    if (!palettePairs.length) {
+                        shinyImg.src = normalImg.src;
+                    } else {
+                        applyPaletteToImage(normalImg, palettePairs, doubleShiny, url => { shinyImg.src = url; });
+                    }
+                }
+                function updateUrlTile() {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('current', currentTile);
+                    history.replaceState({}, '', url);
+                }
+                normalImg.onload = updateShinyPreview;
+                doubleBtn.onclick = function() {
+                    doubleShiny = !doubleShiny;
+                    doubleBtn.textContent = "Double shiny: " + (doubleShiny ? "ON" : "OFF");
+                    updateShinyPreview();
+                };
+                tilePrev.addEventListener('mousedown', () => tilePrev.src = 'OVERLAY/arrow_left_pressed.png');
+                tilePrev.addEventListener('mouseup', () => tilePrev.src = 'OVERLAY/arrow_left_overlay.png');
+                tilePrev.addEventListener('mouseleave', () => tilePrev.src = 'OVERLAY/arrow_left.png');
+                tilePrev.addEventListener('mouseenter', () => {
+                    tilePrev.src = 'OVERLAY/arrow_left_overlay.png';
+                    tilePrev.style.transform = 'scale(1.18)';
+                });
+                tilePrev.addEventListener('mouseleave', () => {
+                    tilePrev.src = 'OVERLAY/arrow_left_overlay.png';
+                    tilePrev.style.transform = 'scale(1)';
+                });
+                tilePrev.onclick = function() {
+                    currentTile = currentTile <= minTile ? maxTile : currentTile - 1;
+                    updateImages();
+                    updateUrlTile();
+                };
+                tileNext.addEventListener('mousedown', () => tileNext.src = 'OVERLAY/arrow_right_pressed.png');
+                tileNext.addEventListener('mouseup', () => tileNext.src = 'OVERLAY/arrow_right_overlay.png');
+                tileNext.addEventListener('mouseleave', () => tileNext.src = 'OVERLAY/arrow_right.png');
+                tileNext.addEventListener('mouseenter', () => {
+                    tileNext.src = 'OVERLAY/arrow_right_overlay.png';
+                    tileNext.style.transform = 'scale(1.18)';
+                });
+                tileNext.addEventListener('mouseleave', () => {
+                    tileNext.src = 'OVERLAY/arrow_right_overlay.png';
+                    tileNext.style.transform = 'scale(1)';
+                });
+                tileNext.onclick = function() {
+                    currentTile = currentTile >= maxTile ? minTile : currentTile + 1;
+                    updateImages();
+                    updateUrlTile();
+                };
+                normalImg.addEventListener('load', updateShinyPreview);
+            });
+        }
+
+        renderPreview();
+
+        // Handler pour le bouton "Voir Self"
+        let seeSelfBtn = document.getElementById('see-self-btn');
+        if (seeSelfBtn) {
+            seeSelfBtn.onclick = function() {
+                seeSelf = !seeSelf;
+                seeSelfBtn.textContent = seeSelf ? t('seeSelfOn') : t('seeSelfOff');
+                renderPreview(); // Appelle à chaque fois pour redétecter le maxTile du dossier actif
+            };
+        }
+        // ...existing code (like, palette, variantes, etc)...
+    });
+    }
+    function afficherErreur() {
+        searchSection.style.display = 'none';
+        detailDiv.style.display = 'block';
+        mainTitle.textContent = t('notFound');
+        detailDiv.innerHTML = `<p>${t('notFoundMsg')}</p><div style="margin-top:1em;"><a href="/" class="back-link">${t('back')}</a></div>`;
+    }
+
+    // Autocomplétion (toujours affichée)
+    searchInput.addEventListener('input', function() {
+        let val = this.value.toLowerCase();
+        suggestionsDiv.innerHTML = '';
+        if (!val) return;
+        // Suggestions uniques par numéro
+        let seen = new Set();
+        let results = [];
+        for (let p of pokemons) {
+            let num = p.numero ? p.numero.toString().trim() : '';
+            if (
+                ((p.numero && p.numero.toString().includes(val)) ||
+                (p.nom && p.nom.toLowerCase().includes(val)))
+                && num && !seen.has(num)
+            ) {
+                seen.add(num);
+                results.push(p);
+            }
+            if (results.length >= 10) break;
+        }
+        results.forEach(p => {
+            let div = document.createElement('div');
+            div.className = 'suggestion';
+            div.textContent = `#${(p.numero || '').toString().trim()} - ${(p.nom || '').trim()}`;
+            div.onclick = () => {
+                window.location.hash = `/${p.numero}`;
+            };
+            suggestionsDiv.appendChild(div);
+        });
+    });
+
+    // Remplace la navigation par hash par navigation via ?r=NUM
+    function goToDetail(num) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('r', num);
+        history.pushState({}, '', url);
+        afficherSiDetail();
+    }
+
+    // Ajout du bouton Valider pour valider la recherche par numéro
+    let validerBtn = document.getElementById('valider-btn');
+    validerBtn.onclick = function() {
+        let val = searchInput.value.trim();
+        if (!val || isNaN(val)) {
+            alert(t('enterValid'));
+            return;
+        }
+        let poke = pokemons.find(p => p.numero && p.numero.toString() === val);
+        if (poke) {
+            goToDetail(poke.numero);
+        } else {
+            alert(t('notFoundNum'));
+        }
+    };
+
+    // Gestion du choix de langue dynamique
+    const langBtns = document.querySelectorAll('.lang-btn');
+    function setLang(lang) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('lang', lang);
+        window.location.href = url.toString();
+    }
+    langBtns.forEach(btn => {
+        btn.onclick = () => setLang(btn.id.replace('lang-', ''));
+        if (window.location.search.includes('lang=' + btn.id.replace('lang-', ''))) {
+            btn.classList.add('active');
+        }
+    });
+    // Titre dynamique selon la langue
+    function updateTitle() {
+        const lang = getLang();
+        const title = t('searchTitle');
+        document.getElementById('main-title').textContent = title;
+        document.title = title;
+        // Placeholder dynamique
+        searchInput.placeholder = t('placeholder');
+        document.getElementById('valider-btn').textContent = t('validate');
+        document.getElementById('footer-credit').innerHTML = t('credit');
+    }
+    updateTitle();
+    window.addEventListener('popstate', updateTitle);
+
+    // Ajoute la fonction de transformation shiny JS (reprend la logique du ShinyEditor)
+    function parsePaletteLine(palette) {
+        // Gère aussi les palettes type: 3 => { c1: "#FFFFFF.#FFFFFF", ... }
+        if (!palette) return [];
+        let match = palette.match(/\{(.+)\}/);
+        if (!match) return [];
+        let content = match[1];
+        let pairs = [];
+        content.split(',').forEach(part => {
+            let m = part.match(/"([^"]+)"/);
+            if (m) {
+                let [from, to] = m[1].split('.');
+                if (from && to) {
+                    // Supporte format hex ou décimal
+                    let fromArr = from.trim().startsWith('#')
+                        ? hexToRgb(from.trim())
+                        : from.trim().split(' ').map(Number);
+                    let toArr = to.trim().startsWith('#')
+                        ? hexToRgb(to.trim())
+                        : to.trim().split(' ').map(Number);
+                    pairs.push({
+                        from: fromArr,
+                        to: toArr
+                    });
+                }
+            }
+        });
+        return pairs;
+    }
+    function hexToRgb(hex) {
+        hex = hex.replace(/^#/, '');
+        if (hex.length === 3) hex = hex.split('').map(x=>x+x).join('');
+        let num = parseInt(hex, 16);
+        return [num >> 16, (num >> 8) & 255, num & 255];
+    }
+    function rgbToHex(rgb) {
+        return '#' + rgb.map(x => x.toString(16).padStart(2, '0')).join('');
+    }
+    function applyPaletteToImage(img, palettePairs, doubleShiny, callback) {
+        // Logique inspirée du ShinyEditor (application fidèle)
+        let canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        let ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        let data = imageData.data;
+        function applyOnePass() {
+            for (let i = 0; i < data.length; i += 4) {
+                let r = Math.max(10, data[i]);
+                let g = Math.max(10, data[i+1]);
+                let b = Math.max(10, data[i+2]);
+                let a = data[i+3];
+                if (a === 0) continue;
+                let minDist = 1e9, best = null;
+                for (let p of palettePairs) {
+                    let d = Math.pow(r-p.from[0],2) + Math.pow(g-p.from[1],2) + Math.pow(b-p.from[2],2);
+                    if (d < minDist) { minDist = d; best = p; }
+                }
+                if (best) {
+                    let rf = r / (best.from[0]||1), gf = g / (best.from[1]||1), bf = b / (best.from[2]||1);
+                    data[i]   = Math.max(0, Math.min(255, best.to[0] * rf));
+                    data[i+1] = Math.max(0, Math.min(255, best.to[1] * gf));
+                    data[i+2] = Math.max(0, Math.min(255, best.to[2] * bf));
+                }
+            }
+        }
+        applyOnePass();
+        if (doubleShiny) {
+            ctx.putImageData(imageData, 0, 0);
+            let img2 = new window.Image();
+            img2.onload = function() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img2, 0, 0);
+                let imageData2 = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                data = imageData2.data;
+                applyOnePass();
+                ctx.putImageData(imageData2, 0, 0);
+                callback(canvas.toDataURL());
+            };
+            img2.src = canvas.toDataURL();
+        } else {
+            ctx.putImageData(imageData, 0, 0);
+            callback(canvas.toDataURL());
+        }
+    }
+
+    // Affiche le preview shiny sous la section "Référence"
+    function renderPreviewShiny(poke, number = 1, maxTile = 1, seeSelf = false) {
+        let minTile = 1;
+        // let maxTile = 12; // Supprime cette ligne
+        let imgUrl = (seeSelf
+            ? `POKEMON_SELF/${poke.numero}/tile${number}.png`
+            : `POKEMON_BASE/${poke.numero}/tile${number}.png`);
+        let palettePairs = parsePaletteLine(poke.palette);
+        let previewDiv = document.createElement('div');
+        previewDiv.className = 'preview-images';
+        previewDiv.style.margin = '1.5em 0 1em 0';
+        previewDiv.style.display = 'flex';
+        previewDiv.style.alignItems = 'center';
+        previewDiv.style.justifyContent = 'center';
+        previewDiv.innerHTML = `
+            <img id="tile-prev" src="OVERLAY/arrow_left.png" style="width:38px;height:38px;cursor:pointer;margin-right:18px;user-select:none;" draggable="false">
+            <div style="text-align:center;">
+                <div style="font-weight:bold;margin-bottom:0.5em;">Normal</div>
+                <img id="preview-normal" src="${imgUrl}" alt="Normal" style="max-width:180px;max-height:180px;border-radius:12px;box-shadow:0 2px 8px #7c4dff44;background:#fff;">
+            </div>
+            <div style="text-align:center;margin-left:2em;">
+                <div style="font-weight:bold;margin-bottom:0.5em;">Shiny <button id="double-shiny-btn" style="margin-left:8px;padding:2px 10px;font-size:0.9em;border-radius:8px;border:none;background:#b388ff;color:#2a0845;cursor:pointer;">Double shiny: OFF</button></div>
+                <img id="preview-shiny" src="" alt="Shiny" style="max-width:180px;max-height:180px;border-radius:12px;box-shadow:0 2px 8px #7c4dff44;background:#fff;">
+            </div>
+            <img id="tile-next" src="OVERLAY/arrow_right.png" style="width:38px;height:38px;cursor:pointer;margin-left:18px;user-select:none;" draggable="false">
+        `;
+        setTimeout(() => {
+            let normalImg = previewDiv.querySelector('#preview-normal');
+            let shinyImg = previewDiv.querySelector('#preview-shiny');
+            let doubleBtn = previewDiv.querySelector('#double-shiny-btn');
+            let tilePrev = previewDiv.querySelector('#tile-prev');
+            let tileNext = previewDiv.querySelector('#tile-next');
+            let doubleShiny = false;
+            let currentTile = number;
+            // Fonction pour mettre à jour l'URL ?current= dynamiquement
+            function updateUrlTile() {
+                const url = new URL(window.location.href);
+                url.searchParams.set('current', currentTile);
+                history.replaceState({}, '', url);
+            }
+            function updateImages() {
+                normalImg.src = (seeSelf
+                    ? `POKEMON_SELF/${poke.numero}/tile${currentTile}.png`
+                    : `POKEMON_BASE/${poke.numero}/tile${currentTile}.png`);
+                // Optionnel: afficher le nom du tile
+                // tileLabel.textContent = `tile${currentTile}.png`;
+            }
+            function updateShinyPreview() {
+                if (!palettePairs.length) {
+                    shinyImg.src = normalImg.src;
+                } else {
+                    applyPaletteToImage(normalImg, palettePairs, doubleShiny, url => { shinyImg.src = url; });
+                }
+            }
+            normalImg.onload = updateShinyPreview;
+            doubleBtn.onclick = function() {
+                doubleShiny = !doubleShiny;
+                doubleBtn.textContent = "Double shiny: " + (doubleShiny ? "ON" : "OFF");
+                updateShinyPreview();
+            };
+            tilePrev.addEventListener('mousedown', () => tilePrev.src = 'OVERLAY/arrow_left_pressed.png');
+            tilePrev.addEventListener('mouseup', () => tilePrev.src = 'OVERLAY/arrow_left_overlay.png');
+            tilePrev.addEventListener('mouseleave', () => tilePrev.src = 'OVERLAY/arrow_left.png');
+            tilePrev.addEventListener('mouseenter', () => {
+                tilePrev.src = 'OVERLAY/arrow_left_overlay.png';
+                tilePrev.style.transform = 'scale(1.18)';
+            });
+            tilePrev.addEventListener('mouseleave', () => {
+                tilePrev.src = 'OVERLAY/arrow_left_overlay.png';
+                tilePrev.style.transform = 'scale(1)';
+            });
+            tilePrev.onclick = function() {
+                currentTile = currentTile <= minTile ? maxTile : currentTile - 1;
+                updateImages();
+                updateUrlTile(); // Ajout de la synchro URL
+            };
+            tileNext.addEventListener('mousedown', () => tileNext.src = 'OVERLAY/arrow_right_pressed.png');
+            tileNext.addEventListener('mouseup', () => tileNext.src = 'OVERLAY/arrow_right_overlay.png');
+            tileNext.addEventListener('mouseleave', () => tileNext.src = 'OVERLAY/arrow_right.png');
+            tileNext.addEventListener('mouseenter', () => {
+                tileNext.src = 'OVERLAY/arrow_right_overlay.png';
+                tileNext.style.transform = 'scale(1.18)';
+            });
+            tileNext.addEventListener('mouseleave', () => {
+                tileNext.src = 'OVERLAY/arrow_right_overlay.png';
+                tileNext.style.transform = 'scale(1)';
+            });
+            tileNext.onclick = function() {
+                currentTile = currentTile >= maxTile ? minTile : currentTile + 1;
+                updateImages();
+                updateUrlTile(); // Ajout de la synchro URL
+            };
+            normalImg.addEventListener('load', updateShinyPreview);
+        }, 0);
+        return previewDiv;
+    }
+    </script>
+</body>
+</html>

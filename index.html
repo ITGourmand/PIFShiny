@@ -302,6 +302,195 @@
             background: #fff;
             color: #7c4dff;
         }
+        /* --- IMPORT SPRITE STYLES --- */
+        .tabs-container {
+            display: flex;
+            justify-content: center;
+            gap: 1em;
+            margin-bottom: 2em;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            background: #7c4dff;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 22px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 8px #0003;
+            transition: background 0.2s, color 0.2s, transform 0.2s;
+        }
+        .tab-btn:hover, .tab-btn.active {
+            background: #b388ff;
+            color: #2a0845;
+            transform: scale(1.08);
+        }
+        .import-section {
+            display: none;
+            max-width: 900px;
+            margin: 2em auto;
+            background: #3d246c;
+            border-radius: 16px;
+            padding: 2em;
+            box-shadow: 0 4px 24px #0005;
+            border: 1px solid #7c4dff;
+        }
+        .import-section.active {
+            display: block;
+        }
+        .upload-area {
+            border: 2px dashed #b388ff;
+            border-radius: 12px;
+            padding: 2em;
+            text-align: center;
+            background: #2a0845cc;
+            cursor: pointer;
+            transition: background 0.2s, border 0.2s;
+            margin-bottom: 1.5em;
+        }
+        .upload-area:hover {
+            background: #2a0845;
+            border-color: #fff;
+        }
+        .upload-area.drag-over {
+            background: #6441a5;
+            border-color: #fff;
+        }
+        .upload-area input[type="file"] {
+            display: none;
+        }
+        .upload-hint {
+            color: #b388ff;
+            font-size: 1.1em;
+            margin-bottom: 1em;
+        }
+        .palette-search-box {
+            background: #2a0845cc;
+            border-radius: 8px;
+            padding: 1em;
+            margin-bottom: 1.5em;
+        }
+        .palette-search-input {
+            width: 100%;
+            max-width: 500px;
+            background: #3d246c;
+            color: #fff;
+            border: 1px solid #7c4dff;
+            border-radius: 8px;
+            padding: 0.8em 1em;
+            font-size: 1em;
+            margin-bottom: 1em;
+        }
+        .palette-search-input:focus {
+            outline: none;
+            border-color: #b388ff;
+            box-shadow: 0 2px 12px #b388ff44;
+        }
+        .palette-list {
+            background: #2a0845cc;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 1.5em;
+        }
+        .palette-item {
+            padding: 0.8em 1em;
+            border-bottom: 1px solid #6441a5;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .palette-item:hover {
+            background: #6441a5;
+        }
+        .palette-item.selected {
+            background: #7c4dff;
+            color: #2a0845;
+        }
+        .palette-display {
+            background: #6441a5;
+            border-radius: 8px;
+            padding: 1em;
+            margin-bottom: 1.5em;
+            color: #fff;
+            word-break: break-all;
+            max-height: 150px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.95em;
+        }
+        .palette-buttons {
+            display: flex;
+            gap: 1em;
+            margin-bottom: 2em;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .action-btn {
+            background: #7c4dff;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 22px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 8px #0003;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .action-btn:hover {
+            background: #b388ff;
+            color: #2a0845;
+            transform: scale(1.04);
+        }
+        .action-btn:disabled {
+            background: #6441a5;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .preview-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2em;
+            margin-top: 2em;
+            text-align: center;
+        }
+        .preview-item {
+            background: #2a0845cc;
+            border-radius: 12px;
+            padding: 1em;
+            border: 1px solid #7c4dff;
+        }
+        .preview-item h4 {
+            color: #b388ff;
+            margin-top: 0;
+            margin-bottom: 1em;
+        }
+        .preview-item img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 2px 12px #7c4dff44;
+        }
+        .no-image {
+            color: #b388ff;
+            padding: 2em;
+            opacity: 0.7;
+        }
+        @media (max-width: 600px) {
+            .preview-container {
+                grid-template-columns: 1fr;
+            }
+            .palette-search-input {
+                max-width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -310,10 +499,64 @@
         <button id="lang-fr" class="lang-btn">FR</button>
         <button id="lang-en" class="lang-btn">EN</button>
     </div>
+    <div id="tabs-section" class="tabs-container" style="display:none;">
+        <button id="tab-search" class="tab-btn active" onclick="switchTab('search')"><span id="search-btn-text">Recherche</span></button>
+        <button id="tab-import" class="tab-btn" onclick="switchTab('import')"><span id="import-btn-text">Import Sprite</span></button>
+    </div>
     <div class="search-box" id="search-section">
         <input type="text" id="search" placeholder="Numéro du Pokémon..." autocomplete="off" />
         <button id="valider-btn">Valider</button>
         <div id="suggestions" class="suggestions"></div>
+    </div>
+    <div id="import-section" class="import-section">
+        <h2 id="import-sprite-title" style="color: #b388ff; text-align: center; margin-top: 0;">Import Sprite</h2>
+        <div class="upload-area" id="upload-area">
+            <div class="upload-hint" id="drag-drop-hint">Glissez-déposez une image PNG ici</div>
+            <input type="file" id="file-input" accept=".png,image/png" />
+            <button class="action-btn" id="upload-btn" style="margin-top: 1em;">Sélectionner une image</button>
+        </div>
+        <img id="uploaded-image" style="display:none; max-width: 0%; border-radius: 8px; margin-bottom: 2em;" />
+        <div id="palette-section" style="display:none;">
+            <h3 id="select-palettes-title" style="color: #b388ff; margin-top: 0;">Sélectionner les palettes</h3>
+            
+            <!-- APERÇUS Original vs Shiny EN HAUT -->
+            <div class="preview-container" style="margin-bottom: 2em;">
+                <div class="preview-item">
+                    <h4 id="original-label">Original</h4>
+                    <img id="original-preview" style="max-height: 250px;" />
+                </div>
+                <div class="preview-item">
+                    <h4 id="preview-title">Aperçu avec palette(s)</h4>
+                    <img id="palette-preview" style="max-height: 250px;" />
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2em; margin-bottom: 2em;">
+                <!-- PALETTE TÊTE -->
+                <div style="background: #2a0845cc; border-radius: 12px; padding: 1.5em; border: 1px solid #7c4dff;">
+                    <h4 id="head-palette-title" style="color: #b388ff; margin-top: 0; text-align: center;">👤 Palette Tête</h4>
+                    <input type="text" id="palette-search-head" class="palette-search-input" placeholder="Rechercher..." style="width: 90%; margin-bottom: 1em;" />
+                    <div id="palette-list-head" class="palette-list" style="max-height: 250px;"></div>
+                    <div id="palette-display-head" class="palette-display" style="margin-top: 1em;">—</div>
+                </div>
+                
+                <!-- PALETTE CORPS -->
+                <div style="background: #2a0845cc; border-radius: 12px; padding: 1.5em; border: 1px solid #7c4dff;">
+                    <h4 id="body-palette-title" style="color: #b388ff; margin-top: 0; text-align: center;">🦴 Palette Corps</h4>
+                    <input type="text" id="palette-search-body" class="palette-search-input" placeholder="Rechercher..." style="width: 90%; margin-bottom: 1em;" />
+                    <div id="palette-list-body" class="palette-list" style="max-height: 250px;"></div>
+                    <div id="palette-display-body" class="palette-display" style="margin-top: 1em;">—</div>
+                </div>
+            </div>
+            
+            <div class="palette-buttons" style="justify-content: center;">
+                <button class="action-btn" id="reset-palettes-btn" onclick="resetPaletteSelection()" style="padding: 12px 30px; font-size: 1.1em; background: #6441a5;">🔄 Réinitialiser</button>
+            </div>
+            
+            <div style="text-align: center; margin-top: 2em;">
+                <button class="action-btn" id="download-btn" onclick="downloadImage()" style="padding: 12px 30px; font-size: 1.1em;">⬇️ Télécharger l'image</button>
+            </div>
+        </div>
     </div>
     <div id="pokemon-detail" style="display:none; max-width:800px; margin:auto; background:#fff; padding:2em; border-radius:10px; box-shadow:0 2px 8px #0001;"></div>
     <footer class="footer-credits">
@@ -322,7 +565,7 @@
     <script>
 const translations = {
     fr: {
-        searchTitle: 'Recherche Pokémon',
+        searchTitle: 'PIF Shiny Dex',
         validate: 'Valider',
         placeholder: 'Nom ou Numéro du Pokémon...',
         sprite: 'Sprite',
@@ -346,10 +589,39 @@ const translations = {
         madeBy: 'Fait par',
         seeSelf: 'Voir Self',
         seeSelfOn: 'Voir Self: ON',
-        seeSelfOff: 'Voir Self: OFF'
+        seeSelfOff: 'Voir Self: OFF',
+        uploadImage: 'Télécharger une image',
+        selectPalette: 'Sélectionner une palette',
+        searchPalette: 'Rechercher une palette...',
+        applyToHead: 'Appliquer à la tête',
+        applyToBody: 'Appliquer au corps',
+        preview: 'Aperçu',
+        download: 'Télécharger',
+        headPalette: 'Palette Tête',
+        bodyPalette: 'Palette Corps',
+        noPaletteSelected: 'Aucune palette sélectionnée',
+        invalidImage: 'Image invalide. Veuillez importer un fichier PNG valide.',
+        selectImage: 'Sélectionner une image',
+        selectPalettes: 'Sélectionner les palettes',
+        noFoundPalettes: 'Aucune palette trouvée',
+        original: 'Original',
+        previewWithPalette: 'Aperçu avec palette(s)',
+        headPaletteLabel: '👤 Palette Tête',
+        bodyPaletteLabel: '🦴 Palette Corps',
+        resetPalettes: '🔄 Réinitialiser',
+        downloadImageBtn: '⬇️ Télécharger l\'image',
+        searchHint: 'Rechercher...',
+        pleaseSelectImage: 'Veuillez d\'abord importer une image',
+        selectAtLeastPalette: 'Veuillez sélectionner au moins une palette',
+        applyFirstPalette: 'Veuillez d\'abord appliquer une palette',
+        searchBtn: 'Recherche',
+        importSpriteBtn: 'Import Sprite',
+        importSpriteTitle: 'Import Sprite',
+        dragDropHint: 'Glissez-déposez une image PNG ici',
+        uploadBtn: 'Sélectionner une image'
     },
     en: {
-        searchTitle: 'Pokémon Search',
+        searchTitle: 'PIF Shiny Dex',
         validate: 'Validate',
         placeholder: 'Pokemon Name or Number...',
         sprite: 'Sprite',
@@ -373,7 +645,35 @@ const translations = {
         madeBy: 'Made by',
         seeSelf: 'See Self',
         seeSelfOn: 'See Self: ON',
-        seeSelfOff: 'See Self: OFF'
+        seeSelfOff: 'See Self: OFF',
+        uploadImage: 'Upload an image',
+        selectPalette: 'Select a palette',
+        searchPalette: 'Search palette...',
+        applyToHead: 'Apply to Head',
+        applyToBody: 'Apply to Body',
+        download: 'Download',
+        headPalette: 'Head Palette',
+        bodyPalette: 'Body Palette',
+        noPaletteSelected: 'No palette selected',
+        invalidImage: 'Invalid image. Please upload a valid PNG file.',
+        selectImage: 'Select an image',
+        selectPalettes: 'Select palettes',
+        noFoundPalettes: 'No palettes found',
+        original: 'Original',
+        previewWithPalette: 'Preview with palette(s)',
+        headPaletteLabel: 'Head Palette',
+        bodyPaletteLabel: 'Body Palette',
+        resetPalettes: '🔄 Reset',
+        downloadImageBtn: '⬇️ Download image',
+        searchHint: 'Search...',
+        pleaseSelectImage: 'Please upload an image first',
+        selectAtLeastPalette: 'Please select at least one palette',
+        applyFirstPalette: 'Please apply a palette first',
+        searchBtn: 'Search',
+        importSpriteBtn: 'Import Sprite',
+        importSpriteTitle: 'Import Sprite',
+        dragDropHint: 'Drag and drop a PNG image here',
+        uploadBtn: 'Select an image'
     }
 };
 
@@ -467,6 +767,8 @@ function t(key) {
         const urlParams = new URLSearchParams(window.location.search);
         const rParam = urlParams.get('r');
         const lang = getLang();
+        const tabsSection = document.getElementById('tabs-section');
+        
         if (rParam && !isNaN(rParam)) {
             let poke = pokemons.find(p => p.numero && p.numero.toString() === rParam);
             if (poke) afficherDetail(poke);
@@ -476,7 +778,9 @@ function t(key) {
         let hash = window.location.hash.replace(/^#\/?/, '');
         if (hash.startsWith('recherche=')) {
             let val = decodeURIComponent(hash.replace('recherche=', ''));
+            tabsSection.style.display = 'flex';
             searchSection.style.display = 'block';
+            document.getElementById('import-section').style.display = 'none';
             detailDiv.style.display = 'none';
             mainTitle.textContent = t('searchTitle');
             searchInput.value = val;
@@ -496,7 +800,9 @@ function t(key) {
             if (poke) afficherDetail(poke);
             else afficherErreur();
         } else {
+            tabsSection.style.display = 'flex';
             searchSection.style.display = 'block';
+            document.getElementById('import-section').style.display = 'none';
             detailDiv.style.display = 'none';
             mainTitle.textContent = t('searchTitle');
             searchInput.value = '';
@@ -555,7 +861,9 @@ function detectMaxTile(numero, callback, maxTry = 50) {
         let currentTile = parseInt(urlParams.get('current'), 10);
         detectMaxTileInFolder(poke.numero, 'POKEMON_BASE', function(maxTile) {
         if (isNaN(currentTile) || currentTile < 1 || currentTile > maxTile) currentTile = 1;
+        document.getElementById('tabs-section').style.display = 'none';
         searchSection.style.display = 'none';
+        document.getElementById('import-section').style.display = 'none';
         detailDiv.style.display = 'block';
         mainTitle.textContent = `#${poke.numero} - ${poke.nom}`;
         const lang = getLang();
@@ -903,12 +1211,32 @@ function detectMaxTile(numero, callback, maxTry = 50) {
         searchInput.placeholder = t('placeholder');
         document.getElementById('valider-btn').textContent = t('validate');
         document.getElementById('footer-credit').innerHTML = t('credit');
+        
+        // Mettre à jour les textes de la section import
+        updateImportSectionTranslations();
+    }
+    
+    function updateImportSectionTranslations() {
+        const lang = getLang();
+        document.getElementById('search-btn-text').textContent = t('searchBtn');
+        document.getElementById('import-btn-text').textContent = t('importSpriteBtn');
+        document.getElementById('import-sprite-title').textContent = t('importSpriteTitle');
+        document.getElementById('drag-drop-hint').textContent = t('dragDropHint');
+        document.getElementById('upload-btn').textContent = t('uploadBtn');
+        document.getElementById('select-palettes-title').textContent = t('selectPalettes');
+        document.getElementById('original-label').textContent = t('original');
+        document.getElementById('preview-title').textContent = t('previewWithPalette');
+        document.getElementById('head-palette-title').textContent = t('headPaletteLabel');
+        document.getElementById('body-palette-title').textContent = t('bodyPaletteLabel');
+        document.getElementById('palette-search-head').placeholder = t('searchHint');
+        document.getElementById('palette-search-body').placeholder = t('searchHint');
+        document.getElementById('reset-palettes-btn').textContent = t('resetPalettes');
+        document.getElementById('download-btn').textContent = t('downloadImageBtn');
     }
     updateTitle();
     window.addEventListener('popstate', updateTitle);
 
     function parsePaletteLine(palette) {
-
         if (!palette) return [];
         let match = palette.match(/\{(.+)\}/);
         if (!match) return [];
@@ -925,6 +1253,15 @@ function detectMaxTile(numero, callback, maxTry = 50) {
                     let toArr = to.trim().startsWith('#')
                         ? hexToRgb(to.trim())
                         : to.trim().split(' ').map(Number);
+                    
+                    // Appliquer la logique Ruby : si valeur <= 10, remplacer par 10
+                    for (let i = 0; i < fromArr.length; i++) {
+                        if (fromArr[i] <= 10) fromArr[i] = 10;
+                    }
+                    for (let i = 0; i < toArr.length; i++) {
+                        if (toArr[i] <= 10) toArr[i] = 10;
+                    }
+                    
                     pairs.push({
                         from: fromArr,
                         to: toArr
@@ -952,47 +1289,108 @@ function detectMaxTile(numero, callback, maxTry = 50) {
         let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         let data = imageData.data;
 
-    // Sépare les paires identiques et différentes
-    const identical = [];
-    const different = [];
-    for (const p of palettePairs) {
-        if (p.from[0] === p.to[0] && p.from[1] === p.to[1] && p.from[2] === p.to[2]) {
-            identical.push(p);
+        // Sépare les paires identiques et différentes pour le double shiny
+        const identical = [];
+        const different = [];
+        
+        if (doubleShiny) {
+            for (const p of palettePairs) {
+                if (p.from[0] === p.to[0] && p.from[1] === p.to[1] && p.from[2] === p.to[2]) {
+                    identical.push(p);
+                } else {
+                    different.push(p);
+                }
+            }
+        }
+
+        function applyRules(pairs) {
+            // Cache pour éviter les recalculs DANS cette pass
+            const colorCache = {};
+            
+            for (let i = 0; i < data.length; i += 4) {
+                const alpha = data[i + 3];
+                if (alpha === 0) continue;
+
+                let r = data[i];
+                let g = data[i + 1];
+                let b = data[i + 2];
+
+                // Créer la clé du cache
+                const key = `${r},${g},${b}`;
+
+                // Vérifier le cache
+                if (colorCache.hasOwnProperty(key)) {
+                    const cached = colorCache[key];
+                    if (cached) {
+                        data[i] = cached[0];
+                        data[i + 1] = cached[1];
+                        data[i + 2] = cached[2];
+                    }
+                    continue;
+                }
+
+                // Convertir en float
+                let rf = r * 1.0;
+                let gf = g * 1.0;
+                let bf = b * 1.0;
+
+                // Éviter la division par zéro
+                if (rf < 0.1) rf = 0.1;
+                if (gf < 0.1) gf = 0.1;
+                if (bf < 0.1) bf = 0.1;
+
+                // Trouver la règle la plus proche
+                let minDistance = Infinity;
+                let closestRule = null;
+
+                for (const rule of pairs) {
+                    const from = rule.from;
+                    const dist = Math.pow(rf - from[0], 2) + Math.pow(gf - from[1], 2) + Math.pow(bf - from[2], 2);
+                    
+                    if (dist < minDistance) {
+                        minDistance = dist;
+                        closestRule = rule;
+                    }
+                }
+
+                if (!closestRule) {
+                    colorCache[key] = null;
+                    continue;
+                }
+
+                // Appliquer la formule : adjusted = to + (pixel - from), clampé à [0, 255]
+                const from = closestRule.from;
+                const to = closestRule.to;
+
+                let adjustedR = to[0] + (rf - from[0]);
+                let adjustedG = to[1] + (gf - from[1]);
+                let adjustedB = to[2] + (bf - from[2]);
+
+                // Clamp entre 0 et 255
+                adjustedR = Math.max(0, Math.min(255, adjustedR));
+                adjustedG = Math.max(0, Math.min(255, adjustedG));
+                adjustedB = Math.max(0, Math.min(255, adjustedB));
+
+                const adj = [Math.round(adjustedR), Math.round(adjustedG), Math.round(adjustedB)];
+                colorCache[key] = adj;
+
+                data[i] = adj[0];
+                data[i + 1] = adj[1];
+                data[i + 2] = adj[2];
+            }
+        }
+
+        // Appliquer les règles
+        if (doubleShiny) {
+            if (different.length > 0) applyRules(different);
+            if (identical.length > 0) applyRules(identical);
         } else {
-            different.push(p);
+            applyRules(palettePairs);
         }
-    }
 
-    function applyOnePass(pairs) {
-        for (let i = 0; i < data.length; i += 4) {
-            let r = Math.max(10, data[i]);
-            let g = Math.max(10, data[i+1]);
-            let b = Math.max(10, data[i+2]);
-            let a = data[i+3];
-            if (a === 0) continue;
-            let minDist = 1e9, best = null;
-            for (let p of pairs) {
-                let d = Math.pow(r-p.from[0],2) + Math.pow(g-p.from[1],2) + Math.pow(b-p.from[2],2);
-                if (d < minDist) { minDist = d; best = p; }
-            }
-            if (best) {
-                let rf = r / (best.from[0]||1), gf = g / (best.from[1]||1), bf = b / (best.from[2]||1);
-                data[i]   = Math.max(0, Math.min(255, best.to[0] * rf));
-                data[i+1] = Math.max(0, Math.min(255, best.to[1] * gf));
-                data[i+2] = Math.max(0, Math.min(255, best.to[2] * bf));
-            }
-        }
+        ctx.putImageData(imageData, 0, 0);
+        callback(canvas.toDataURL());
     }
-
-    if (doubleShiny) {
-        if (different.length > 0) applyOnePass(different);
-        if (identical.length > 0) applyOnePass(identical);
-    } else {
-        applyOnePass(palettePairs);
-    }
-    ctx.putImageData(imageData, 0, 0);
-    callback(canvas.toDataURL());
-}
     function renderPreviewShiny(poke, number = 1, maxTile = 1, seeSelf = false) {
         let minTile = 1;
         let imgUrl = (seeSelf
@@ -1083,6 +1481,506 @@ function detectMaxTile(numero, callback, maxTry = 50) {
             normalImg.addEventListener('load', updateShinyPreview);
         }, 0);
         return previewDiv;
+    }
+
+    // --- IMPORT SPRITE FUNCTIONALITY ---
+    let importedImage = null;
+    let uploadedFile = null;
+    let selectedPaletteHead = null;
+    let selectedPaletteBody = null;
+    let filteredPalettesHead = [];
+    let filteredPalettesBody = [];
+
+    function switchTab(tab) {
+        const searchSection = document.getElementById('search-section');
+        const importSection = document.getElementById('import-section');
+        const tabSearch = document.getElementById('tab-search');
+        const tabImport = document.getElementById('tab-import');
+
+        if (tab === 'search') {
+            searchSection.style.display = 'flex';
+            importSection.style.display = 'none';
+            tabSearch.classList.add('active');
+            tabImport.classList.remove('active');
+        } else {
+            searchSection.style.display = 'none';
+            importSection.style.display = 'block';
+            tabSearch.classList.remove('active');
+            tabImport.classList.add('active');
+        }
+    }
+
+    const uploadArea = document.getElementById('upload-area');
+    const fileInput = document.getElementById('file-input');
+    const uploadBtn = document.getElementById('upload-btn');
+    const uploadedImageElement = document.getElementById('uploaded-image');
+    const paletteSection = document.getElementById('palette-section');
+    const paletteSearchHead = document.getElementById('palette-search-head');
+    const paletteSearchBody = document.getElementById('palette-search-body');
+    const paletteListHead = document.getElementById('palette-list-head');
+    const paletteListBody = document.getElementById('palette-list-body');
+    const paletteDisplayHead = document.getElementById('palette-display-head');
+    const paletteDisplayBody = document.getElementById('palette-display-body');
+    const originalPreview = document.getElementById('original-preview');
+    const palettePreview = document.getElementById('palette-preview');
+
+    uploadBtn.onclick = () => fileInput.click();
+
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('drag-over');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('drag-over');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('drag-over');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) handleFileSelect(files[0]);
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) handleFileSelect(e.target.files[0]);
+    });
+
+    function handleFileSelect(file) {
+        if (!file.type.startsWith('image/png') && !file.name.endsWith('.png')) {
+            alert(t('invalidImage'));
+            return;
+        }
+        uploadedFile = file;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                importedImage = img;
+                uploadedImageElement.src = e.target.result;
+                uploadedImageElement.style.display = 'block';
+                uploadArea.style.display = 'none';
+                paletteSection.style.display = 'block';
+                originalPreview.src = e.target.result;
+                updatePaletteListHead();
+                updatePaletteListBody();
+            };
+            img.onerror = () => {
+                alert(t('invalidImage'));
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function updatePaletteListHead() {
+        const searchTerm = paletteSearchHead.value.toLowerCase();
+        filteredPalettesHead = pokemons.filter(p => {
+            if (!p.palette) return false;
+            const pokeName = (p.nom || '').toLowerCase();
+            const pokeNum = (p.numero || '').toString();
+            return pokeName.includes(searchTerm) || pokeNum.includes(searchTerm);
+        });
+
+        paletteListHead.innerHTML = '';
+        if (filteredPalettesHead.length === 0) {
+            paletteListHead.innerHTML = '<div style="padding: 1em; color: #b388ff; text-align: center;">Aucune palette trouvée</div>';
+            return;
+        }
+
+        filteredPalettesHead.forEach((poke, index) => {
+            const item = document.createElement('div');
+            item.className = 'palette-item';
+            if (selectedPaletteHead && selectedPaletteHead.numero === poke.numero) {
+                item.classList.add('selected');
+            }
+            item.innerHTML = `<span>#${poke.numero} - ${poke.nom}</span><span style="font-size: 0.9em; opacity: 0.8;">►</span>`;
+            item.onclick = () => selectPaletteHead(poke, index);
+            paletteListHead.appendChild(item);
+        });
+    }
+
+    function updatePaletteListBody() {
+        const searchTerm = paletteSearchBody.value.toLowerCase();
+        filteredPalettesBody = pokemons.filter(p => {
+            if (!p.palette) return false;
+            const pokeName = (p.nom || '').toLowerCase();
+            const pokeNum = (p.numero || '').toString();
+            return pokeName.includes(searchTerm) || pokeNum.includes(searchTerm);
+        });
+
+        paletteListBody.innerHTML = '';
+        if (filteredPalettesBody.length === 0) {
+            paletteListBody.innerHTML = '<div style="padding: 1em; color: #b388ff; text-align: center;">Aucune palette trouvée</div>';
+            return;
+        }
+
+        filteredPalettesBody.forEach((poke, index) => {
+            const item = document.createElement('div');
+            item.className = 'palette-item';
+            if (selectedPaletteBody && selectedPaletteBody.numero === poke.numero) {
+                item.classList.add('selected');
+            }
+            item.innerHTML = `<span>#${poke.numero} - ${poke.nom}</span><span style="font-size: 0.9em; opacity: 0.8;">►</span>`;
+            item.onclick = () => selectPaletteBody(poke, index);
+            paletteListBody.appendChild(item);
+        });
+    }
+
+    function selectPaletteHead(poke, index) {
+        // Si c'est déjà sélectionné, désélectionner
+        if (selectedPaletteHead && selectedPaletteHead.numero === poke.numero) {
+            selectedPaletteHead = null;
+            paletteDisplayHead.textContent = '—';
+            const items = paletteListHead.querySelectorAll('.palette-item');
+            items.forEach(item => item.classList.remove('selected'));
+        } else {
+            selectedPaletteHead = poke;
+            const items = paletteListHead.querySelectorAll('.palette-item');
+            items.forEach(item => item.classList.remove('selected'));
+            items[index].classList.add('selected');
+            updatePaletteDisplayHead();
+        }
+        updatePreviewDynamic();
+    }
+
+    function selectPaletteBody(poke, index) {
+        // Si c'est déjà sélectionné, désélectionner
+        if (selectedPaletteBody && selectedPaletteBody.numero === poke.numero) {
+            selectedPaletteBody = null;
+            paletteDisplayBody.textContent = '—';
+            const items = paletteListBody.querySelectorAll('.palette-item');
+            items.forEach(item => item.classList.remove('selected'));
+        } else {
+            selectedPaletteBody = poke;
+            const items = paletteListBody.querySelectorAll('.palette-item');
+            items.forEach(item => item.classList.remove('selected'));
+            items[index].classList.add('selected');
+            updatePaletteDisplayBody();
+        }
+        updatePreviewDynamic();
+    }
+
+    function updatePaletteDisplayHead() {
+        if (selectedPaletteHead && selectedPaletteHead.palette) {
+            paletteDisplayHead.textContent = selectedPaletteHead.palette;
+        } else {
+            paletteDisplayHead.textContent = '—';
+        }
+    }
+
+    function updatePaletteDisplayBody() {
+        if (selectedPaletteBody && selectedPaletteBody.palette) {
+            paletteDisplayBody.textContent = selectedPaletteBody.palette;
+        } else {
+            paletteDisplayBody.textContent = '—';
+        }
+    }
+
+    paletteSearchHead.addEventListener('input', updatePaletteListHead);
+    paletteSearchBody.addEventListener('input', updatePaletteListBody);
+
+    function updatePreviewDynamic() {
+        if (!importedImage) return;
+
+        if (!selectedPaletteHead && !selectedPaletteBody) {
+            palettePreview.src = '';
+            palettePreview.style.display = 'none';
+            document.getElementById('preview-title').textContent = t('previewWithPalette');
+            return;
+        }
+
+        const img = new Image();
+        img.src = importedImage.src;
+        img.onload = () => {
+            // Si les DEUX palettes sont sélectionnées, combiner les palettes avec la logique Ruby
+            const useBothPalettes = selectedPaletteHead && selectedPaletteBody;
+            
+            if (useBothPalettes) {
+                // Combiner les deux palettes selon la logique Ruby
+                const combinedPaletteStr = combinePalettes(selectedPaletteHead.palette, selectedPaletteBody.palette);
+                applyPaletteString(img, combinedPaletteStr, (url) => {
+                    palettePreview.src = url;
+                    palettePreview.style.display = 'block';
+                    updatePreviewTitle();
+                });
+            } else if (selectedPaletteHead) {
+                // Seulement la tête - pas de double shiny
+                const headPairs = parsePaletteLine(selectedPaletteHead.palette);
+                applyPaletteToImage(img, headPairs, false, (url) => {
+                    palettePreview.src = url;
+                    palettePreview.style.display = 'block';
+                    updatePreviewTitle();
+                });
+            } else if (selectedPaletteBody) {
+                // Seulement le corps - pas de double shiny
+                const bodyPairs = parsePaletteLine(selectedPaletteBody.palette);
+                applyPaletteToImage(img, bodyPairs, false, (url) => {
+                    palettePreview.src = url;
+                    palettePreview.style.display = 'block';
+                    updatePreviewTitle();
+                });
+            }
+        };
+    }
+
+    function combinePalettes(headPaletteStr, bodyPaletteStr) {
+        // Extraire les paires de chaque palette
+        const headPairs = parsePaletteLine(headPaletteStr);
+        const bodyPairs = parsePaletteLine(bodyPaletteStr);
+        
+        const differentPairs = [];
+        const identicalPairs = [];
+        
+        // Ajouter les paires de la tête
+        for (const pair of headPairs) {
+            if (pair.from[0] === pair.to[0] && pair.from[1] === pair.to[1] && pair.from[2] === pair.to[2]) {
+                identicalPairs.push(pair);
+            } else {
+                differentPairs.push(pair);
+            }
+        }
+        
+        // Ajouter les paires du corps
+        for (const pair of bodyPairs) {
+            if (pair.from[0] === pair.to[0] && pair.from[1] === pair.to[1] && pair.from[2] === pair.to[2]) {
+                identicalPairs.push(pair);
+            } else {
+                differentPairs.push(pair);
+            }
+        }
+        
+        // Construire la chaîne combinée
+        let result = '';
+        
+        if (differentPairs.length > 0) {
+            result += differentPairs.map(p => `"${p.from.join(' ')}.${p.to.join(' ')}"`).join(',');
+        }
+        
+        if (identicalPairs.length > 0) {
+            const identicalStr = identicalPairs.map(p => `"${p.from.join(' ')}.${p.to.join(' ')}"`).join(',');
+            if (result) {
+                result += '&' + identicalStr;
+            } else {
+                result = identicalStr;
+            }
+        }
+        
+        return `{${result}}`;
+    }
+
+    function applyPaletteString(img, paletteStr, callback) {
+        // Cette fonction gère le format avec & et |
+        if (!paletteStr || paletteStr === 'nil' || paletteStr === '{"nil"}') {
+            callback(img.src);
+            return;
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+
+        // Traiter chaque partie séparée par &
+        const parts = paletteStr.replace(/[{}]/g, '').split('&').map(p => p.trim());
+        
+        let currentCanvas = canvas;
+        
+        for (let i = 0; i < parts.length; i++) {
+            const part = parts[i];
+            if (!part) continue;
+            
+            const pairs = part.split(',').map(pairStr => {
+                const match = pairStr.match(/"([^"]+)"/);
+                if (!match) return null;
+                
+                const [from, to] = match[1].split('.');
+                return {
+                    from: from.trim().split(' ').map(Number),
+                    to: to.trim().split(' ').map(Number)
+                };
+            }).filter(p => p !== null);
+            
+            // Appliquer avec double shiny pour toutes les parties
+            const imageData = ctx.getImageData(0, 0, currentCanvas.width, currentCanvas.height);
+            applyRulesToImageData(imageData, pairs, true);
+            ctx.putImageData(imageData, 0, 0);
+        }
+        
+        callback(canvas.toDataURL());
+    }
+
+    function applyRulesToImageData(imageData, pairs, doubleShiny) {
+        const data = imageData.data;
+        
+        // Sépare les paires identiques et différentes
+        const identical = [];
+        const different = [];
+        
+        if (doubleShiny) {
+            for (const p of pairs) {
+                if (p.from[0] === p.to[0] && p.from[1] === p.to[1] && p.from[2] === p.to[2]) {
+                    identical.push(p);
+                } else {
+                    different.push(p);
+                }
+            }
+        }
+        
+        function applyRules(rulePairs) {
+            const colorCache = {};
+            
+            for (let i = 0; i < data.length; i += 4) {
+                const alpha = data[i + 3];
+                if (alpha === 0) continue;
+
+                let r = data[i];
+                let g = data[i + 1];
+                let b = data[i + 2];
+
+                const key = `${r},${g},${b}`;
+
+                if (colorCache.hasOwnProperty(key)) {
+                    const cached = colorCache[key];
+                    if (cached) {
+                        data[i] = cached[0];
+                        data[i + 1] = cached[1];
+                        data[i + 2] = cached[2];
+                    }
+                    continue;
+                }
+
+                let rf = r * 1.0;
+                let gf = g * 1.0;
+                let bf = b * 1.0;
+
+                if (rf < 0.1) rf = 0.1;
+                if (gf < 0.1) gf = 0.1;
+                if (bf < 0.1) bf = 0.1;
+
+                let minDistance = Infinity;
+                let closestRule = null;
+
+                for (const rule of rulePairs) {
+                    const from = rule.from;
+                    const dist = Math.pow(rf - from[0], 2) + Math.pow(gf - from[1], 2) + Math.pow(bf - from[2], 2);
+                    
+                    if (dist < minDistance) {
+                        minDistance = dist;
+                        closestRule = rule;
+                    }
+                }
+
+                if (!closestRule) {
+                    colorCache[key] = null;
+                    continue;
+                }
+
+                const from = closestRule.from;
+                const to = closestRule.to;
+
+                let adjustedR = to[0] + (rf - from[0]);
+                let adjustedG = to[1] + (gf - from[1]);
+                let adjustedB = to[2] + (bf - from[2]);
+
+                adjustedR = Math.max(0, Math.min(255, adjustedR));
+                adjustedG = Math.max(0, Math.min(255, adjustedG));
+                adjustedB = Math.max(0, Math.min(255, adjustedB));
+
+                const adj = [Math.round(adjustedR), Math.round(adjustedG), Math.round(adjustedB)];
+                colorCache[key] = adj;
+
+                data[i] = adj[0];
+                data[i + 1] = adj[1];
+                data[i + 2] = adj[2];
+            }
+        }
+
+        if (doubleShiny) {
+            if (different.length > 0) applyRules(different);
+            if (identical.length > 0) applyRules(identical);
+        } else {
+            applyRules(pairs);
+        }
+    }
+
+    function applyBothPalettes() {
+        // Cette fonction n'est plus nécessaire car la mise à jour est automatique
+        updatePreviewDynamic();
+    }
+
+    function updatePreviewTitle() {
+        const previewTitle = document.getElementById('preview-title');
+        let title = t('previewWithPalette');
+        
+        // Double Shiny s'applique quand les DEUX palettes sont sélectionnées
+        if (selectedPaletteHead && selectedPaletteBody) {
+            title = `✨ ${selectedPaletteHead.nom}/${selectedPaletteBody.nom}- Double Shiny`;
+        } else if (selectedPaletteHead) {
+            title = `${selectedPaletteHead.nom}`;
+        } else if (selectedPaletteBody) {
+            title = `${selectedPaletteBody.nom}`;
+        }
+        
+        if (previewTitle) {
+            previewTitle.textContent = title;
+        }
+    }
+
+    function resetPaletteSelection() {
+        selectedPaletteHead = null;
+        selectedPaletteBody = null;
+        paletteSearchHead.value = '';
+        paletteSearchBody.value = '';
+        paletteListHead.innerHTML = '';
+        paletteListBody.innerHTML = '';
+        paletteDisplayHead.textContent = '—';
+        paletteDisplayBody.textContent = '—';
+        palettePreview.src = '';
+        palettePreview.style.display = 'none';
+        document.getElementById('preview-title').textContent = t('previewWithPalette');
+        updatePaletteListHead();
+        updatePaletteListBody();
+    }
+
+    function downloadImage() {
+        if (!palettePreview.src || palettePreview.src === '') {
+            alert(t('applyFirstPalette'));
+            return;
+        }
+        const link = document.createElement('a');
+        link.href = palettePreview.src;
+        link.download = `sprite_${Date.now()}.png`;
+        link.click();
+    }
+
+    // Insérer la palette display dans le HTML
+    setTimeout(() => {
+        // Code d'initialisation si nécessaire
+    }, 100);
+
+    function resetImport() {
+        importedImage = null;
+        uploadedFile = null;
+        selectedPaletteHead = null;
+        selectedPaletteBody = null;
+        filteredPalettesHead = [];
+        filteredPalettesBody = [];
+        uploadedImageElement.src = '';
+        uploadedImageElement.style.display = 'none';
+        uploadArea.style.display = 'block';
+        paletteSection.style.display = 'none';
+        fileInput.value = '';
+        paletteSearchHead.value = '';
+        paletteSearchBody.value = '';
+        paletteListHead.innerHTML = '';
+        paletteListBody.innerHTML = '';
+        paletteDisplayHead.textContent = '—';
+        paletteDisplayBody.textContent = '—';
+        palettePreview.src = '';
+        palettePreview.style.display = 'none';
+        document.getElementById('preview-title').textContent = t('previewWithPalette');
     }
     </script>
 </body>

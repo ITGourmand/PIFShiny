@@ -115,12 +115,14 @@ const translations = {
 
 export function getLang() {
     const params = new URLSearchParams(window.location.search);
-    return params.get('lang') || 'en';
+    const lang = params.get('lang') || 'en';
+    return translations[lang] ? lang : 'en';
 }
 
 export function t(key) {
     const lang = getLang();
-    return translations[lang][key] || key;
+    const langDict = translations[lang] || translations['en'];
+    return langDict[key] || key;
 }
 
 export function setLang(lang) {

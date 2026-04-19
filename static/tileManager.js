@@ -1,34 +1,62 @@
-import { parsePaletteLine, applyPaletteToImage } from './imageUtils.js';
+import { parsePaletteLine, applyPaletteToImage } from "./imageUtils.js";
 
-// Détecte le nombre maximum de tuiles dans un dossier spécifique
-export function detectMaxTileInFolder(numero, folder, pokemonBaseList, pokemonSelfList, callback) {
-  const currentList = folder === "POKEMON_BASE" ? pokemonBaseList : pokemonSelfList;
+export function detectMaxTileInFolder(
+  numero,
+  folder,
+  pokemonBaseList,
+  pokemonSelfList,
+) {
+  // Sélectionner la bonne liste
+  const currentList =
+    folder === "POKEMON_SELF" ? pokemonSelfList : pokemonBaseList;
+
+  // Récupérer le tableau pour ce Pokémon
   const files = currentList[numero.toString()] || [];
-  callback(files.length);
+
+  // Retourne le nombre d'images disponibles (ex: 36 pour ton Pokémon n°1)
+  return files.length;
 }
 
-// Fonction fallback pour détecter les tuiles
-export function detectMaxTile(numero, callback, maxTry = 50) {
-  let count = 0;
-  function tryNext(i) {
-    if (i > maxTry) return callback(count);
-    let img = new Image();
-    img.onload = () => {
-      count = i;
-      tryNext(i + 1);
+export function initTileManager(state, updateUI) {
+  const prevBtn = document.getElementById("prev-tile");
+  const nextBtn = document.getElementById("next-tile");
+
+  if (prevBtn) {
+    prevBtn.onclick = () => {
+      if (state.maxTile <= 1) return;
+      state.currentTile =
+        state.currentTile > 1 ? state.currentTile - 1 : state.maxTile;
+      updateUI();
     };
-    img.onerror = () => callback(count);
-    img.src = `POKEMON_BASE/${numero}/tile${i}.png`;
   }
-  tryNext(1);
+
+  if (nextBtn) {
+    nextBtn.onclick = () => {
+      if (state.maxTile <= 1) return;
+      state.currentTile =
+        state.currentTile < state.maxTile ? state.currentTile + 1 : 1;
+      updateUI();
+    };
+  }
 }
 
 // Crée le div d'aperçu shiny avec navigation
-export function renderPreviewShiny(poke, number = 1, maxTile = 1, seeSelf = false, pokemonBaseList, pokemonSelfList) {
+export function renderPreviewShiny(
+  poke,
+  number = 1,
+  maxTile = 1,
+  seeSelf = false,
+  pokemonBaseList,
+  pokemonSelfList,
+) {
   let minTile = 1;
-  let imgUrl = seeSelf
-    ? `POKEMON_SELF/${poke.numero}/tile${number}.png`
-    : `POKEMON_BASE/${poke.numero}/tile${number}.png`;
+  const currentList = seeSelf ? pokemonSelfList : pokemonBaseList;
+  const folder = seeSelf ? "POKEMON_SELF" : "POKEMON_BASE";
+  const files = currentList[poke.numero.toString()] || [];
+  const fileName = files[number - 1] || "FOUND/000.png";
+
+  // 4. Générer l'URL finale
+  let imgUrl = `${folder}/${poke.numero}/${fileName}`;
   let palettePairs = parsePaletteLine(poke.palette);
   let previewDiv = document.createElement("div");
   previewDiv.className = "preview-images";
@@ -56,21 +84,28 @@ export function renderPreviewShiny(poke, number = 1, maxTile = 1, seeSelf = fals
     let tileNext = previewDiv.querySelector("#tile-next");
     let doubleShiny = false;
     let currentTile = number;
-    
+
     function updateUrlTile() {
       const url = new URL(window.location.href);
       url.searchParams.set("current", currentTile);
       history.replaceState({}, "", url);
     }
-    
+
     function updateImages() {
       const currentList = seeSelf ? pokemonSelfList : pokemonBaseList;
-      const folder = seeSelf ? "POKEMON_SELF" : "POKEMON_BASE";
+      const rootFolder = seeSelf ? "POKEMON_SELF" : "POKEMON_BASE";
       const files = currentList[poke.numero.toString()] || [];
-      const fileName = files[currentTile - 1] || `tile${currentTile}.png`;
-      normalImg.src = `${folder}/${poke.numero}/${fileName}`;
+      const fileName = files[currentTile - 1];
+
+      if (fileName) {
+        normalImg.src = `${rootFolder}/${poke.numero}/${fileName}`;
+      } else {
+        console.warn(
+          `Image non trouvée pour le Pokémon ${poke.numero} à l'index ${currentTile - 1}`,
+        );
+      }
     }
-    
+
     function updateShinyPreview() {
       if (!palettePairs.length) {
         shinyImg.src = normalImg.src;
@@ -80,18 +115,27 @@ export function renderPreviewShiny(poke, number = 1, maxTile = 1, seeSelf = fals
         });
       }
     }
-    
+
     normalImg.onload = updateShinyPreview;
     doubleBtn.onclick = function () {
       doubleShiny = !doubleShiny;
       doubleBtn.textContent = "Double shiny: " + (doubleShiny ? "ON" : "OFF");
       updateShinyPreview();
     };
-    
+
     // Événements tuile précédente
-    tilePrev.addEventListener("mousedown", () => (tilePrev.src = "OVERLAY/arrow_left_pressed.png"));
-    tilePrev.addEventListener("mouseup", () => (tilePrev.src = "OVERLAY/arrow_left_overlay.png"));
-    tilePrev.addEventListener("mouseleave", () => (tilePrev.src = "OVERLAY/arrow_left.png"));
+    tilePrev.addEventListener(
+      "mousedown",
+      () => (tilePrev.src = "OVERLAY/arrow_left_pressed.png"),
+    );
+    tilePrev.addEventListener(
+      "mouseup",
+      () => (tilePrev.src = "OVERLAY/arrow_left_overlay.png"),
+    );
+    tilePrev.addEventListener(
+      "mouseleave",
+      () => (tilePrev.src = "OVERLAY/arrow_left.png"),
+    );
     tilePrev.addEventListener("mouseenter", () => {
       tilePrev.src = "OVERLAY/arrow_left_overlay.png";
       tilePrev.style.transform = "scale(1.18)";
@@ -105,11 +149,20 @@ export function renderPreviewShiny(poke, number = 1, maxTile = 1, seeSelf = fals
       updateImages();
       updateUrlTile();
     };
-    
+
     // Événements tuile suivante
-    tileNext.addEventListener("mousedown", () => (tileNext.src = "OVERLAY/arrow_right_pressed.png"));
-    tileNext.addEventListener("mouseup", () => (tileNext.src = "OVERLAY/arrow_right_overlay.png"));
-    tileNext.addEventListener("mouseleave", () => (tileNext.src = "OVERLAY/arrow_right.png"));
+    tileNext.addEventListener(
+      "mousedown",
+      () => (tileNext.src = "OVERLAY/arrow_right_pressed.png"),
+    );
+    tileNext.addEventListener(
+      "mouseup",
+      () => (tileNext.src = "OVERLAY/arrow_right_overlay.png"),
+    );
+    tileNext.addEventListener(
+      "mouseleave",
+      () => (tileNext.src = "OVERLAY/arrow_right.png"),
+    );
     tileNext.addEventListener("mouseenter", () => {
       tileNext.src = "OVERLAY/arrow_right_overlay.png";
       tileNext.style.transform = "scale(1.18)";
@@ -123,9 +176,9 @@ export function renderPreviewShiny(poke, number = 1, maxTile = 1, seeSelf = fals
       updateImages();
       updateUrlTile();
     };
-    
+
     normalImg.addEventListener("load", updateShinyPreview);
   }, 0);
-  
+
   return previewDiv;
 }

@@ -72,8 +72,8 @@ function updateImportSectionTranslations() {
   if (selectPalettesTitle) selectPalettesTitle.textContent = t("selectPalettes") || "Select Palettes";
   if (originalLabel) originalLabel.textContent = t("original") || "Original";
   if (previewTitle) previewTitle.textContent = t("previewWithPalette") || "Preview with Palette";
-  if (headPaletteTitle) headPaletteTitle.textContent = t("headPaletteLabel") || "👤 Head Palette";
-  if (bodyPaletteTitle) bodyPaletteTitle.textContent = t("bodyPaletteLabel") || "🦴 Body Palette";
+  if (headPaletteTitle) headPaletteTitle.textContent = t("headPaletteLabel") || "Head Palette";
+  if (bodyPaletteTitle) bodyPaletteTitle.textContent = t("bodyPaletteLabel") || "Body Palette";
   if (paletteSearchHead) paletteSearchHead.placeholder = t("searchHint") || "Search...";
   if (paletteSearchBody) paletteSearchBody.placeholder = t("searchHint") || "Search...";
   if (resetPalettesBtn) resetPalettesBtn.textContent = t("resetPalettes") || "🔄 Reset";

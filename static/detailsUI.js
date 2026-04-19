@@ -244,7 +244,12 @@ export function initDetailsUI(pokemons, pokemonBaseList, pokemonSelfList) {
     }
 
     let seeSelf = false;
+    let isRendering = false; // Flag pour éviter les appels simultanés
+    
     function renderPreview() {
+      if (isRendering) return; // Ignorer si déjà en cours de rendu
+      isRendering = true;
+      
       let folder = seeSelf ? "POKEMON_SELF" : "POKEMON_BASE";
       let maxTile = detectMaxTileInFolder(poke.numero, folder, pokemonBaseList, pokemonSelfList);
       if (isNaN(currentTile) || currentTile < 1 || currentTile > maxTile)
@@ -259,16 +264,30 @@ export function initDetailsUI(pokemons, pokemonBaseList, pokemonSelfList) {
         pokemonSelfList,
       );
       previewContainer.appendChild(previewDiv);
+      
+      // Attendre que l'image se charge avant de permettre un nouveau rendu
+      setTimeout(() => {
+        isRendering = false;
+      }, 300);
     }
 
     renderPreview();
 
     let seeSelfBtn = document.getElementById("see-self-btn");
     if (seeSelfBtn) {
+      let btnLocked = false; // Débounce du bouton
       seeSelfBtn.onclick = function () {
+        if (btnLocked) return; // Ignorer les clics rapides
+        btnLocked = true;
+        
         seeSelf = !seeSelf;
         seeSelfBtn.textContent = seeSelf ? t("seeSelfOn") : t("seeSelfOff");
         renderPreview();
+        
+        // Déverrouiller après 400ms
+        setTimeout(() => {
+          btnLocked = false;
+        }, 400);
       };
     }
   };

@@ -3,11 +3,28 @@ const API_LIKE_URL =
 
 export async function loadJSONLists() {
   try {
+    // Vérifier si les listes sont en cache dans localStorage
+    const cachedBase = localStorage.getItem("pokemonBaseCache");
+    const cachedSelf = localStorage.getItem("pokemonSelfCache");
+    
+    if (cachedBase && cachedSelf) {
+      console.log("Listes de fichiers chargées depuis le cache !");
+      return { 
+        base: JSON.parse(cachedBase), 
+        self: JSON.parse(cachedSelf) 
+      };
+    }
+
     const [base, self] = await Promise.all([
       fetch("LINK/POKEMON_BASE.json").then((r) => r.json()),
       fetch("LINK/POKEMON_SELF.json").then((r) => r.json()),
     ]);
-    console.log("Listes de fichiers chargées !");
+    
+    // Sauvegarder en localStorage pour les prochains appels
+    localStorage.setItem("pokemonBaseCache", JSON.stringify(base));
+    localStorage.setItem("pokemonSelfCache", JSON.stringify(self));
+    
+    console.log("Listes de fichiers chargées et mises en cache !");
     return { base, self };
   } catch (err) {
     console.error("Erreur de chargement des JSON :", err);

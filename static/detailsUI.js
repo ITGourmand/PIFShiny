@@ -13,7 +13,10 @@ export function initDetailsUI(pokemons, pokemonBaseList, pokemonSelfList) {
     const urlParams = new URLSearchParams(window.location.search);
     let currentTile = parseInt(urlParams.get("current"), 10);
 
-    let maxTile = detectMaxTileInFolder(poke.numero, "POKEMON_BASE", pokemonBaseList, pokemonSelfList);
+    const maxTileBase = detectMaxTileInFolder(poke.numero, "POKEMON_BASE", pokemonBaseList, pokemonSelfList);
+    const maxTileSelf = detectMaxTileInFolder(poke.numero, "POKEMON_SELF", pokemonBaseList, pokemonSelfList);
+    let maxTile = Math.max(maxTileBase, maxTileSelf);
+    if (maxTile < 1) maxTile = 1;
     if (isNaN(currentTile) || currentTile < 1 || currentTile > maxTile)
       currentTile = 1;
 
@@ -250,8 +253,6 @@ export function initDetailsUI(pokemons, pokemonBaseList, pokemonSelfList) {
       if (isRendering) return; // Ignorer si déjà en cours de rendu
       isRendering = true;
       
-      let folder = seeSelf ? "POKEMON_SELF" : "POKEMON_BASE";
-      let maxTile = detectMaxTileInFolder(poke.numero, folder, pokemonBaseList, pokemonSelfList);
       if (isNaN(currentTile) || currentTile < 1 || currentTile > maxTile)
         currentTile = 1;
       previewContainer.innerHTML = "";

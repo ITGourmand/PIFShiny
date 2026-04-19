@@ -50,14 +50,14 @@ export function renderPreviewShiny(
   pokemonSelfList,
 ) {
   let minTile = 1;
-  const currentList = seeSelf ? pokemonSelfList : pokemonBaseList;
-  const folder = seeSelf ? "POKEMON_SELF" : "POKEMON_BASE";
-  const files = currentList[poke.numero.toString()] || [];
-  const fileName = files[number - 1] || "FOUND/000.png";
+  const filesBase = pokemonBaseList[poke.numero.toString()] || [];
+  const filesSelf = pokemonSelfList[poke.numero.toString()] || [];
+  const fileNameBase = filesBase[number - 1] || "FOUND/000.png";
+  const fileNameSelf = filesSelf[number - 1] || "FOUND/000.png";
+  const baseUrl = `POKEMON_BASE/${poke.numero}/${fileNameBase}`;
+  const selfUrl = `POKEMON_SELF/${poke.numero}/${fileNameSelf}`;
+  const palettePairs = parsePaletteLine(poke.palette);
 
-  // 4. Générer l'URL finale
-  let imgUrl = `${folder}/${poke.numero}/${fileName}`;
-  let palettePairs = parsePaletteLine(poke.palette);
   let previewDiv = document.createElement("div");
   previewDiv.className = "preview-images";
   previewDiv.style.margin = "1.5em 0 1em 0";
@@ -68,17 +68,22 @@ export function renderPreviewShiny(
             <img id="tile-prev" src="OVERLAY/arrow_left.png" style="width:38px;height:38px;cursor:pointer;margin-right:18px;user-select:none;" draggable="false">
             <div style="text-align:center;">
                 <div style="font-weight:bold;margin-bottom:0.5em;">Normal</div>
-                <img id="preview-normal" src="${imgUrl}" alt="Normal" style="max-width:180px;max-height:180px;border-radius:12px;box-shadow:0 2px 8px #7c4dff44;background:#fff;">
+                <img id="preview-normal-base" src="${baseUrl}" alt="Normal Base" style="max-width:180px;max-height:180px;border-radius:12px;box-shadow:0 2px 8px #7c4dff44;background:#fff;display:${seeSelf ? "none" : "block"};">
+                <img id="preview-normal-self" src="${selfUrl}" alt="Normal Self" style="max-width:180px;max-height:180px;border-radius:12px;box-shadow:0 2px 8px #7c4dff44;background:#fff;display:${seeSelf ? "block" : "none"};">
             </div>
             <div style="text-align:center;margin-left:2em;">
                 <div style="font-weight:bold;margin-bottom:0.5em;">Shiny <button id="double-shiny-btn" style="margin-left:8px;padding:2px 10px;font-size:0.9em;border-radius:8px;border:none;background:#b388ff;color:#2a0845;cursor:pointer;">Double shiny: OFF</button></div>
-                <img id="preview-shiny" src="" alt="Shiny" style="max-width:180px;max-height:180px;border-radius:12px;box-shadow:0 2px 8px #7c4dff44;background:#fff;">
+                <img id="preview-shiny-base" src="" alt="Shiny Base" style="max-width:180px;max-height:180px;border-radius:12px;box-shadow:0 2px 8px #7c4dff44;background:#fff;display:${seeSelf ? "none" : "block"};">
+                <img id="preview-shiny-self" src="" alt="Shiny Self" style="max-width:180px;max-height:180px;border-radius:12px;box-shadow:0 2px 8px #7c4dff44;background:#fff;display:${seeSelf ? "block" : "none"};">
             </div>
             <img id="tile-next" src="OVERLAY/arrow_right.png" style="width:38px;height:38px;cursor:pointer;margin-left:18px;user-select:none;" draggable="false">
         `;
+
   setTimeout(() => {
-    let normalImg = previewDiv.querySelector("#preview-normal");
-    let shinyImg = previewDiv.querySelector("#preview-shiny");
+    let normalBaseImg = previewDiv.querySelector("#preview-normal-base");
+    let normalSelfImg = previewDiv.querySelector("#preview-normal-self");
+    let shinyBaseImg = previewDiv.querySelector("#preview-shiny-base");
+    let shinySelfImg = previewDiv.querySelector("#preview-shiny-self");
     let doubleBtn = previewDiv.querySelector("#double-shiny-btn");
     let tilePrev = previewDiv.querySelector("#tile-prev");
     let tileNext = previewDiv.querySelector("#tile-next");
@@ -91,32 +96,69 @@ export function renderPreviewShiny(
       history.replaceState({}, "", url);
     }
 
-    function updateImages() {
-      const currentList = seeSelf ? pokemonSelfList : pokemonBaseList;
-      const rootFolder = seeSelf ? "POKEMON_SELF" : "POKEMON_BASE";
-      const files = currentList[poke.numero.toString()] || [];
-      const fileName = files[currentTile - 1];
+    function updateWrapperVisibility() {
+      const showSelf = seeSelf;
+      normalBaseImg.style.display = showSelf ? "none" : "block";
+      normalSelfImg.style.display = showSelf ? "block" : "none";
+      shinyBaseImg.style.display = showSelf ? "none" : "block";
+      shinySelfImg.style.display = showSelf ? "block" : "none";
+    }
 
-      if (fileName) {
-        normalImg.src = `${rootFolder}/${poke.numero}/${fileName}`;
-      } else {
+    function updateImages() {
+      const filesBase = pokemonBaseList[poke.numero.toString()] || [];
+      const filesSelf = pokemonSelfList[poke.numero.toString()] || [];
+      const fileNameBase = filesBase[currentTile - 1];
+      const fileNameSelf = filesSelf[currentTile - 1];
+
+      normalBaseImg.src = fileNameBase
+        ? `POKEMON_BASE/${poke.numero}/${fileNameBase}`
+        : baseUrl;
+      normalSelfImg.src = fileNameSelf
+        ? `POKEMON_SELF/${poke.numero}/${fileNameSelf}`
+        : selfUrl;
+
+      if (!fileNameBase) {
         console.warn(
-          `Image non trouvée pour le Pokémon ${poke.numero} à l'index ${currentTile - 1}`,
+          `Image not found for the Pokémon ${poke.numero} base at index ${currentTile - 1}`,
         );
       }
+      if (!fileNameSelf) {
+        console.warn(
+          `Image not found for the Pokémon ${poke.numero} self at index ${currentTile - 1}`,
+        );
+      }
+
+      updateShinyPreview();
     }
 
     function updateShinyPreview() {
       if (!palettePairs.length) {
-        shinyImg.src = normalImg.src;
-      } else {
-        applyPaletteToImage(normalImg, palettePairs, doubleShiny, (url) => {
-          shinyImg.src = url;
-        });
+        shinyBaseImg.src = normalBaseImg.src;
+        shinySelfImg.src = normalSelfImg.src;
+        return;
       }
+
+      function renderShiny(imgElement, targetElement) {
+        if (imgElement.complete && imgElement.naturalWidth !== 0) {
+          applyPaletteToImage(imgElement, palettePairs, doubleShiny, (url) => {
+            targetElement.src = url;
+          });
+        } else {
+          imgElement.onload = () => {
+            applyPaletteToImage(imgElement, palettePairs, doubleShiny, (url) => {
+              targetElement.src = url;
+            });
+          };
+        }
+      }
+
+      renderShiny(normalBaseImg, shinyBaseImg);
+      renderShiny(normalSelfImg, shinySelfImg);
     }
 
-    normalImg.onload = updateShinyPreview;
+    updateWrapperVisibility();
+    updateShinyPreview();
+
     doubleBtn.onclick = function () {
       doubleShiny = !doubleShiny;
       doubleBtn.textContent = "Double shiny: " + (doubleShiny ? "ON" : "OFF");
@@ -176,8 +218,6 @@ export function renderPreviewShiny(
       updateImages();
       updateUrlTile();
     };
-
-    normalImg.addEventListener("load", updateShinyPreview);
   }, 0);
 
   return previewDiv;

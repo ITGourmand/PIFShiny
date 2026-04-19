@@ -8,7 +8,7 @@ export async function loadJSONLists() {
     const cachedSelf = localStorage.getItem("pokemonSelfCache");
     
     if (cachedBase && cachedSelf) {
-      console.log("Listes de fichiers chargées depuis le cache !");
+      console.log("File lists loaded from cache!");
       return { 
         base: JSON.parse(cachedBase), 
         self: JSON.parse(cachedSelf) 
@@ -24,10 +24,10 @@ export async function loadJSONLists() {
     localStorage.setItem("pokemonBaseCache", JSON.stringify(base));
     localStorage.setItem("pokemonSelfCache", JSON.stringify(self));
     
-    console.log("Listes de fichiers chargées et mises en cache !");
+    console.log("Lists of loaded and cached files!");
     return { base, self };
   } catch (err) {
-    console.error("Erreur de chargement des JSON :", err);
+    console.error("Error loading JSON files:", err);
     return { base: {}, self: {} };
   }
 }
